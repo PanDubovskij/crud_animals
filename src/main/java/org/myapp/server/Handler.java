@@ -3,7 +3,7 @@ package org.myapp.server;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-public class Handler implements HttpHandler {
+public final class Handler implements HttpHandler {
 
     private Controller controller;
     @Override

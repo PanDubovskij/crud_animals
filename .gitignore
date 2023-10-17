@@ -354,4 +354,3 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/java,kotlin,groovy,gradle,maven,eclipse,intellij,windows,linux,macos
-/Recipes/task/src/recipes/RecipesApplication.java

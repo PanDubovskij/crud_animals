@@ -1,20 +1,25 @@
-package org.myapp.entity;
+package org.myapp.dto;
 
-public final class Dog {
+public final class Dto {
+
     private final long id;
     private final String name;
     private final String color;
     private final int weight;
     private final int height;
-    private final Owner owner;
+    private final String ownerName;
+    private final int ownerAge;
+    private final int animalsNumber;
 
-    public static final class Builder{
+    public static final class Builder {
         private long id;
         private String name;
         private String color;
         private int weight;
         private int height;
-        private Owner owner;
+        private String ownerName;
+        private int ownerAge;
+        private int animalsNumber;
 
         public Builder setId(long id) {
             this.id = id;
@@ -41,13 +46,23 @@ public final class Dog {
             return this;
         }
 
-        public Builder setOwner(Owner owner) {
-            this.owner = owner;
+        public Builder setOwnerName(String ownerName) {
+            this.ownerName = ownerName;
             return this;
         }
 
-        public Dog build() {
-            return new Dog(id, name, color, weight, height, owner);
+        public Builder setOwnerAge(int ownerAge) {
+            this.ownerAge = ownerAge;
+            return this;
+        }
+
+        public Builder setAnimalsNumber(int animalsNumber) {
+            this.animalsNumber = animalsNumber;
+            return this;
+        }
+
+        public Dto build() {
+            return new Dto(id, name, color, weight, height, ownerName, ownerAge, animalsNumber);
         }
     }
 
@@ -71,16 +86,26 @@ public final class Dog {
         return height;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public String getOwnerName() {
+        return ownerName;
     }
 
-    private Dog(long id, String name, String color, int weight, int height, Owner owner) {
+    public int getOwnerAge() {
+        return ownerAge;
+    }
+
+    public int getAnimalsNumber() {
+        return animalsNumber;
+    }
+
+    private Dto(long id, String name, String color, int weight, int height, String ownerName, int ownerAge, int animalsNumber) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.weight = weight;
         this.height = height;
-        this.owner = owner;
+        this.ownerName = ownerName;
+        this.ownerAge = ownerAge;
+        this.animalsNumber = animalsNumber;
     }
 }

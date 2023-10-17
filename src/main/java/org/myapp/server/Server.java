@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Server {
+public final class Server {
     private HttpServer server;
 
 
