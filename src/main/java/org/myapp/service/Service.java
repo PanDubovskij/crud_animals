@@ -1,15 +1,17 @@
 package org.myapp.service;
 
-import org.myapp.dto.Dto;
+import org.myapp.dto.CreateDto;
+import org.myapp.dto.SearchDto;
+import org.myapp.dto.UpdateDto;
 
 import java.util.List;
 
 public interface Service {
-    void create(Dto dto);
+    void create(CreateDto createDto);
 
-    List<Dto> search();
+    List<SearchDto> search();
 
-    void update(Dto dto);
+    void update(UpdateDto updateDto);
 
     void delete(long id);
 }

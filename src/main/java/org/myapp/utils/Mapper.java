@@ -1,13 +1,14 @@
 package org.myapp.utils;
 
-import org.myapp.dto.Dto;
+import org.myapp.dto.CreateDto;
+import org.myapp.dto.SearchDto;
+import org.myapp.dto.UpdateDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
 
 public final class Mapper {
-    public static Dto entityToDto(Cat cat) {
-        return new Dto.Builder()
-                .setId(cat.getId())
+    public static SearchDto entityToSearchDto(Cat cat) {
+        return new SearchDto.Builder()
                 .setName(cat.getName())
                 .setColor(cat.getColor())
                 .setWeight(cat.getWeight())
@@ -18,18 +19,30 @@ public final class Mapper {
                 .build();
     }
 
-    public static Cat dtoToEntity(Dto dto) {
+    public static Cat createDtoToEntity(CreateDto createDto) {
 
         return new Cat.Builder()
-                .setId(dto.getId())
-                .setName(dto.getName())
-                .setColor(dto.getColor())
-                .setWeight(dto.getWeight())
-                .setHeight(dto.getHeight())
+                .setName(createDto.getName())
+                .setColor(createDto.getColor())
+                .setWeight(createDto.getWeight())
+                .setHeight(createDto.getHeight())
                 .setOwner(new Owner.Builder()
-                        .setName(dto.getOwnerName())
-                        .setAge(dto.getOwnerAge())
-                        .setAnimalsAmount(dto.getAnimalsNumber())
+                        .setName(createDto.getOwnerName())
+                        .setAge(createDto.getOwnerAge())
+                        .build())
+                .build();
+    }
+
+    public static Cat updateDtoToEntity(UpdateDto updateDto) {
+
+        return new Cat.Builder()
+                .setId(updateDto.getId())
+                .setName(updateDto.getName())
+                .setWeight(updateDto.getWeight())
+                .setHeight(updateDto.getHeight())
+                .setOwner(new Owner.Builder()
+                        .setName(updateDto.getOwnerName())
+                        .setAge(updateDto.getOwnerAge())
                         .build())
                 .build();
     }

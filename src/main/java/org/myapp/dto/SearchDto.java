@@ -1,8 +1,6 @@
 package org.myapp.dto;
 
-public final class Dto {
-
-    private final long id;
+public final class SearchDto {
     private final String name;
     private final String color;
     private final int weight;
@@ -12,7 +10,6 @@ public final class Dto {
     private final int animalsNumber;
 
     public static final class Builder {
-        private long id;
         private String name;
         private String color;
         private int weight;
@@ -21,10 +18,6 @@ public final class Dto {
         private int ownerAge;
         private int animalsNumber;
 
-        public Builder setId(long id) {
-            this.id = id;
-            return this;
-        }
 
         public Builder setName(String name) {
             this.name = name;
@@ -61,14 +54,11 @@ public final class Dto {
             return this;
         }
 
-        public Dto build() {
-            return new Dto(id, name, color, weight, height, ownerName, ownerAge, animalsNumber);
+        public SearchDto build() {
+            return new SearchDto(name, color, weight, height, ownerName, ownerAge, animalsNumber);
         }
     }
 
-    public long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;
@@ -98,8 +88,7 @@ public final class Dto {
         return animalsNumber;
     }
 
-    private Dto(long id, String name, String color, int weight, int height, String ownerName, int ownerAge, int animalsNumber) {
-        this.id = id;
+    private SearchDto(String name, String color, int weight, int height, String ownerName, int ownerAge, int animalsNumber) {
         this.name = name;
         this.color = color;
         this.weight = weight;

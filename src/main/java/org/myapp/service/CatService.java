@@ -1,6 +1,8 @@
 package org.myapp.service;
 
-import org.myapp.dto.Dto;
+import org.myapp.dto.CreateDto;
+import org.myapp.dto.SearchDto;
+import org.myapp.dto.UpdateDto;
 import org.myapp.entity.Cat;
 import org.myapp.utils.Mapper;
 
@@ -16,27 +18,27 @@ public final class CatService implements Service {
     }
 
     @Override
-    public void create(Dto dto) {
+    public void create(CreateDto createDto) {
         //validate
 
         //map
-        Cat cat = Mapper.dtoToEntity(dto);
+        Cat cat = Mapper.createDtoToEntity(createDto);
 
         cats.add(cat);
     }
 
     @Override
-    public List<Dto> search() {
-        return cats.stream().map(Mapper::entityToDto).collect(Collectors.toList());
+    public List<SearchDto> search() {
+        return cats.stream().map(Mapper::entityToSearchDto).collect(Collectors.toList());
     }
 
     @Override
-    public void update(Dto dto) {
+    public void update(UpdateDto updateDto) {
         //validate
 
         //map
-        Cat cat = Mapper.dtoToEntity(dto);
-        cats.set((int) (dto.getId()), cat);
+        Cat cat = Mapper.updateDtoToEntity(updateDto);
+        cats.set((int) (updateDto.getId()), cat);
     }
 
     @Override
