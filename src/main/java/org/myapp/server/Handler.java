@@ -3,18 +3,23 @@ package org.myapp.server;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import java.io.IOException;
+
 public final class Handler implements HttpHandler {
 
-    private Controller controller;
+    private final Controller controller;
+
+    public Handler(Controller controller) {
+        this.controller = controller;
+    }
+
     @Override
     public void handle(final HttpExchange httpExchange) {
-//        try {
-//            controller.execute(httpExchange);
-//        } catch (final Exception e) {
-//            handleException(httpExchange);
-//        } finally {
-//            httpExchange.close();
-//        }
+        try (httpExchange) {
+            controller.execute(httpExchange);
+        } catch (final Exception e) {
+            handleException(httpExchange);
+        }
     }
 
     private void handleException(final HttpExchange httpExchange) {

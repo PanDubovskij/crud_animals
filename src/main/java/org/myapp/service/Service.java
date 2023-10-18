@@ -7,7 +7,7 @@ import org.myapp.dto.UpdateDto;
 import java.util.List;
 
 public interface Service {
-    void create(CreateDto createDto);
+    long create(CreateDto createDto);
 
     List<SearchDto> search();
 

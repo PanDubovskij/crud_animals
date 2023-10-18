@@ -18,13 +18,14 @@ public final class CatService implements Service {
     }
 
     @Override
-    public void create(CreateDto createDto) {
+    public long create(CreateDto createDto) {
         //validate
 
         //map
         Cat cat = Mapper.createDtoToEntity(createDto);
 
         cats.add(cat);
+        return cat.getId();
     }
 
     @Override
