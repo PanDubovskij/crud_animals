@@ -1,6 +1,6 @@
 package org.myapp.entity;
 
-public final class Dog {
+public final class Dog extends BaseEntity{
     private final long id;
     private final String name;
     private final String color;

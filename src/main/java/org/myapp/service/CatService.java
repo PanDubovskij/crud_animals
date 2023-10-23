@@ -25,6 +25,23 @@ public final class CatService implements Service {
 
     @Override
     public long create(CreateDto createDto) {
+        //TODO: validate CreateDto
+        //Todo: map to Cat
+        //TODO: ownerDao.createOwnerIfNotExist(Owner): return ownerID
+        //TODO: add ownerId to Cat
+        //TODO: catDao.createCat(Cat): return catID
+
+
+
+
+
+
+
+
+
+
+
+
         //validate
 
         //map
@@ -49,7 +66,7 @@ public final class CatService implements Service {
 
         //map
         Cat cat = Mapper.updateDtoToEntity(updateDto);
-        cats.set((int) (updateDto.getId()), cat);
+        cats.set((int) (cat.getId()), cat);
         long id = cat.getId();
         System.out.println("service update");
         return id;
