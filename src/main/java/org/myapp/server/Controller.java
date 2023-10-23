@@ -80,6 +80,7 @@ public abstract class Controller {
             }
             default -> notSupportRequest(httpExchange, requestMethod, "Method {} does not support");
         }
+        System.out.println("execute");
     }
 
     private void writeResponse(final HttpExchange httpExchange, List<JsonObject> jsonObjects, int status) throws IOException {
@@ -94,6 +95,7 @@ public abstract class Controller {
             responseBody.write(db.toString().getBytes(StandardCharsets.UTF_8));
             responseBody.flush();
         }
+        System.out.println("writeResponse");
     }
 
     private void response(final HttpExchange httpExchange, final int status, final int responseLength) {
@@ -102,6 +104,7 @@ public abstract class Controller {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("response");
     }
 
     private void notSupportRequest(final HttpExchange httpExchange, final String value, final String message) {
@@ -110,10 +113,13 @@ public abstract class Controller {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        System.out.println("notSupportRequest");
     }
 
     protected Optional<String> readAttributes(final URI uri, JsonKey key) {
         final String path = uri.getQuery();
+        System.out.println("readAttributes");
         return path != null ? Arrays.stream(path.split(REG_ATTRIBUTES_DELIMITER))
                 .filter(a -> a.contains(key.getKey()))
                 .map(p -> p.split(REG_ATTRIBUTE_DELIMITER)[1])
@@ -130,6 +136,7 @@ public abstract class Controller {
         } catch (IOException | JsonException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("readRequestFromJson");
         return deserialize;
     }
 
@@ -139,6 +146,7 @@ public abstract class Controller {
                     Optional<String> attribute = readAttributes(requestURI, at);
                     attribute.ifPresent(p -> attributes.put(at, p));
                 });
+        System.out.println("searchAttributeUrl");
     }
 
 }

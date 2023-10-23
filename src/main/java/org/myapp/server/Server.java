@@ -16,6 +16,7 @@ public final class Server {
 
     public Server(Map<String, HttpHandler> handlers) {
         this.handlers.putAll(handlers);
+        System.out.println("Server");
     }
 
     public void start() {
@@ -24,6 +25,7 @@ public final class Server {
             server.bind(new InetSocketAddress(8080), 0);
             handlers.forEach((path, hand) -> server.createContext(path, hand::handle));
             server.start();
+            System.out.println("start");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -32,5 +34,6 @@ public final class Server {
     public void stop() {
 //        ConnectionPool.INSTANCE.destroyPool();
         server.stop(1);
+        System.out.println("stop");
     }
 }

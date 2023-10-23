@@ -11,7 +11,7 @@ public interface Service {
 
     List<SearchDto> search();
 
-    void update(UpdateDto updateDto);
+    long update(UpdateDto updateDto);
 
-    void delete(long id);
+    boolean delete(long id);
 }

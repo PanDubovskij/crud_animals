@@ -2,14 +2,12 @@ package org.myapp.dto;
 
 public final class CreateDto {
 
-//    private final long id;
     private final String name;
     private final String color;
     private final int weight;
     private final int height;
     private final String ownerName;
     private final int ownerAge;
-//    private final int animalsNumber;
 
     public static final class Builder {
         private String name;

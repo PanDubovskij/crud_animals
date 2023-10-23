@@ -19,5 +19,8 @@ public final class Constants {
     public static final String REG_GET_SEARCH = "/.+/search";
     public static final String REG_ATTRIBUTES_DELIMITER = "&";
     public static final String REG_ATTRIBUTE_DELIMITER = "=";
+
+    public static final String CATS_PATH = "/cats";
+    public static final String DOGS_PATH = "/dogs";
     private Constants() {}
 }

@@ -8,6 +8,7 @@ import org.myapp.entity.Owner;
 
 public final class Mapper {
     public static SearchDto entityToSearchDto(Cat cat) {
+        System.out.println("entityToSearchDto");
         return new SearchDto.Builder()
                 .setName(cat.getName())
                 .setColor(cat.getColor())
@@ -20,6 +21,7 @@ public final class Mapper {
     }
 
     public static Cat createDtoToEntity(CreateDto createDto) {
+        System.out.println("createDtoToEntity");
 
         return new Cat.Builder()
                 .setName(createDto.getName())
@@ -35,6 +37,7 @@ public final class Mapper {
 
     public static Cat updateDtoToEntity(UpdateDto updateDto) {
 
+        System.out.println("updateDtoToEntity");
         return new Cat.Builder()
                 .setId(updateDto.getId())
                 .setName(updateDto.getName())
