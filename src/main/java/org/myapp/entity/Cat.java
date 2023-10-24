@@ -83,4 +83,16 @@ public final class Cat extends BaseEntity{
         this.height = height;
         this.owner = owner;
     }
+
+    @Override
+    public String toString() {
+        return "Cat{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", weight=" + weight +
+                ", height=" + height +
+                ", owner=" + owner +
+                '}';
+    }
 }

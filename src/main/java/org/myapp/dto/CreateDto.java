@@ -1,21 +1,21 @@
 package org.myapp.dto;
 
+import org.myapp.entity.Owner;
+
 public final class CreateDto {
 
     private final String name;
     private final String color;
     private final int weight;
     private final int height;
-    private final String ownerName;
-    private final int ownerAge;
+    private final Owner owner;
 
     public static final class Builder {
         private String name;
         private String color;
         private int weight;
         private int height;
-        private String ownerName;
-        private int ownerAge;
+        private Owner owner;
 
         public Builder setName(String name) {
             this.name = name;
@@ -37,19 +37,13 @@ public final class CreateDto {
             return this;
         }
 
-        public Builder setOwnerName(String ownerName) {
-            this.ownerName = ownerName;
+        public Builder setOwner(Owner owner) {
+            this.owner = owner;
             return this;
         }
-
-        public Builder setOwnerAge(int ownerAge) {
-            this.ownerAge = ownerAge;
-            return this;
-        }
-
 
         public CreateDto build() {
-            return new CreateDto(name, color, weight, height, ownerName, ownerAge);
+            return new CreateDto(name, color, weight, height, owner);
         }
     }
 
@@ -70,20 +64,15 @@ public final class CreateDto {
         return height;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public Owner getOwner() {
+        return owner;
     }
 
-    public int getOwnerAge() {
-        return ownerAge;
-    }
-
-    private CreateDto(String name, String color, int weight, int height, String ownerName, int ownerAge) {
+    private CreateDto(String name, String color, int weight, int height, Owner owner) {
         this.name = name;
         this.color = color;
         this.weight = weight;
         this.height = height;
-        this.ownerName = ownerName;
-        this.ownerAge = ownerAge;
+        this.owner = owner;
     }
 }

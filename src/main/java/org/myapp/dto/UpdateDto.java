@@ -1,20 +1,20 @@
 package org.myapp.dto;
 
+import org.myapp.entity.Owner;
+
 public final class UpdateDto {
     private final long id;
     private final String name;
     private final int weight;
     private final int height;
-    private final String ownerName;
-    private final int ownerAge;
+    private final Owner owner;
 
     public static final class Builder {
         private long id;
         private String name;
         private int weight;
         private int height;
-        private String ownerName;
-        private int ownerAge;
+        private Owner owner;
 
         public Builder setId(long id) {
             this.id = id;
@@ -36,18 +36,13 @@ public final class UpdateDto {
             return this;
         }
 
-        public Builder setOwnerName(String ownerName) {
-            this.ownerName = ownerName;
-            return this;
-        }
-
-        public Builder setOwnerAge(int ownerAge) {
-            this.ownerAge = ownerAge;
+        public Builder setOwner(Owner owner) {
+            this.owner = owner;
             return this;
         }
 
         public UpdateDto build() {
-            return new UpdateDto(id, name, weight, height, ownerName, ownerAge);
+            return new UpdateDto(id, name, weight, height, owner);
         }
     }
 
@@ -67,20 +62,15 @@ public final class UpdateDto {
         return height;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public Owner getOwner() {
+        return owner;
     }
 
-    public int getOwnerAge() {
-        return ownerAge;
-    }
-
-    private UpdateDto(long id, String name, int weight, int height, String ownerName, int ownerAge) {
+    private UpdateDto(long id, String name, int weight, int height, Owner owner) {
         this.id = id;
         this.name = name;
         this.weight = weight;
         this.height = height;
-        this.ownerName = ownerName;
-        this.ownerAge = ownerAge;
+        this.owner = owner;
     }
 }

@@ -1,22 +1,20 @@
 package org.myapp.dto;
 
+import org.myapp.entity.Owner;
+
 public final class SearchDto {
     private final String name;
     private final String color;
     private final int weight;
     private final int height;
-    private final String ownerName;
-    private final int ownerAge;
-    private final int animalsNumber;
+    private final Owner owner;
 
     public static final class Builder {
         private String name;
         private String color;
         private int weight;
         private int height;
-        private String ownerName;
-        private int ownerAge;
-        private int animalsNumber;
+        private Owner owner;
 
 
         public Builder setName(String name) {
@@ -39,23 +37,13 @@ public final class SearchDto {
             return this;
         }
 
-        public Builder setOwnerName(String ownerName) {
-            this.ownerName = ownerName;
-            return this;
-        }
-
-        public Builder setOwnerAge(int ownerAge) {
-            this.ownerAge = ownerAge;
-            return this;
-        }
-
-        public Builder setAnimalsNumber(int animalsNumber) {
-            this.animalsNumber = animalsNumber;
+        public Builder setOwner(Owner owner) {
+            this.owner = owner;
             return this;
         }
 
         public SearchDto build() {
-            return new SearchDto(name, color, weight, height, ownerName, ownerAge, animalsNumber);
+            return new SearchDto(name, color, weight, height, owner);
         }
     }
 
@@ -76,25 +64,16 @@ public final class SearchDto {
         return height;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+
+    public Owner getOwner() {
+        return owner;
     }
 
-    public int getOwnerAge() {
-        return ownerAge;
-    }
-
-    public int getAnimalsNumber() {
-        return animalsNumber;
-    }
-
-    private SearchDto(String name, String color, int weight, int height, String ownerName, int ownerAge, int animalsNumber) {
+    private SearchDto(String name, String color, int weight, int height, Owner owner) {
         this.name = name;
         this.color = color;
         this.weight = weight;
         this.height = height;
-        this.ownerName = ownerName;
-        this.ownerAge = ownerAge;
-        this.animalsNumber = animalsNumber;
+        this.owner = owner;
     }
 }

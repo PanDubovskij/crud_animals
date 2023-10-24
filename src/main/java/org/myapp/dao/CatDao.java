@@ -18,7 +18,12 @@ public final class CatDao implements Dao<Cat> {
 
     public CatDao() {
         if (connectionPool == null) {
-            connectionPool = ConnectionPool.INSTANCE;
+            connectionPool = ConnectionPool.INSTANCE
+                    .urlKey("jdbc:postgresql://localhost:5432/postgres")
+                    .passwordKey("postgres")
+                    .usernameKey("postgres")
+                    .poolSize("5")
+                    .build();
         }
     }
 

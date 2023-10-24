@@ -6,6 +6,7 @@ import org.myapp.constants.Attributes;
 import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
+import org.myapp.entity.Owner;
 import org.myapp.server.Controller;
 import org.myapp.service.Service;
 
@@ -29,9 +30,9 @@ public final class CatController extends Controller {
                 .setColor(jsonObject.getString(Attributes.COLOR))
                 .setHeight(Integer.parseInt(jsonObject.getString(Attributes.HEIGHT)))
                 .setWeight(Integer.parseInt(jsonObject.getString(Attributes.WEIGHT)))
-                .setOwnerName(jsonObject.getString(Attributes.OWNER_NAME))
-                .setOwnerAge(Integer.parseInt(jsonObject.getString(Attributes.OWNER_AGE)))
+                .setOwner(new Owner.Builder().build())
                 .build();
+
         long id = service.create(createDto);
         System.out.println("create in controller");
         return id;
@@ -51,9 +52,9 @@ public final class CatController extends Controller {
             json.put(Attributes.COLOR, cat.getColor());
             json.put(Attributes.WEIGHT, cat.getWeight());
             json.put(Attributes.HEIGHT, cat.getHeight());
-            json.put(Attributes.OWNER_NAME, cat.getOwnerName());
-            json.put(Attributes.OWNER_AGE, cat.getOwnerAge());
-            json.put(Attributes.ANIMALS_NUMBER, cat.getAnimalsNumber());
+            json.put(Attributes.OWNER_NAME, cat.getOwner().getName());
+            json.put(Attributes.OWNER_AGE, cat.getOwner().getAge());
+            json.put(Attributes.ANIMALS_NUMBER, cat.getOwner().getAnimalsAmount());
             jsonObjects.add(json);
         }
         System.out.println("search in controller");
@@ -69,8 +70,10 @@ public final class CatController extends Controller {
                 .setName(jsonObject.getString(Attributes.NAME))
                 .setHeight(jsonObject.getInteger(Attributes.HEIGHT))
                 .setWeight(jsonObject.getInteger(Attributes.WEIGHT))
-                .setOwnerName(jsonObject.getString(Attributes.OWNER_NAME))
-                .setOwnerAge(jsonObject.getInteger(Attributes.OWNER_AGE))
+                .setOwner(new Owner.Builder()
+                        .setName(jsonObject.getString(Attributes.OWNER_NAME))
+                        .setAge(jsonObject.getInteger(Attributes.OWNER_AGE))
+                        .build())
                 .build();
         long id = service.update(updateDto);
         System.out.println("update in controller");

@@ -31,27 +31,27 @@ public enum ConnectionPool {
     ConnectionPool() {
     }
 
-    ConnectionPool passwordKey(String passwordKey) {
+    public ConnectionPool passwordKey(String passwordKey) {
         this.passwordKey = passwordKey;
         return this;
     }
 
-    ConnectionPool usernameKey(String usernameKey) {
+    public ConnectionPool usernameKey(String usernameKey) {
         this.usernameKey = usernameKey;
         return this;
     }
 
-    ConnectionPool urlKey(String urlKey) {
+    public ConnectionPool urlKey(String urlKey) {
         this.urlKey = urlKey;
         return this;
     }
 
-    ConnectionPool poolSize(String poolSize) {
+    public ConnectionPool poolSize(String poolSize) {
         this.poolSize = poolSize;
         return this;
     }
 
-    ConnectionPool build() {
+    public ConnectionPool build() {
 //        loadDriver();
         initConnectionPool();
         return this;

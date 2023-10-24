@@ -13,7 +13,12 @@ public final class OwnerDao implements Dao<Owner> {
 
     public OwnerDao() {
         if (connectionPool == null) {
-            connectionPool = ConnectionPool.INSTANCE;
+            connectionPool = ConnectionPool.INSTANCE
+                    .urlKey("jdbc:postgresql://localhost:5432/postgres")
+                    .passwordKey("postgres")
+                    .usernameKey("postgres")
+                    .poolSize("5")
+                    .build();
         }
     }
 
@@ -119,6 +124,21 @@ public final class OwnerDao implements Dao<Owner> {
             preparedStatement.setInt(2, owner.getAge());
             preparedStatement.setLong(3, owner.getId());
             ownerID = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerID;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return ownerID;
+    }
+
+    public long incrementAnimalAmount(final long id) {
+        long ownerID = -1;
+        String sql = """
+                  UPDATE owner SET animals_amount=animals_amount+1 WHERE owner_id=?;
+                """;
+        try (Connection connection = connectionPool.openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -59,4 +59,14 @@ public final class Owner extends BaseEntity{
         this.age = age;
         this.animalsAmount = animalsAmount;
     }
+
+    @Override
+    public String toString() {
+        return "Owner{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", animalsAmount=" + animalsAmount +
+                '}';
+    }
 }
