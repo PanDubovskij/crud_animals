@@ -13,19 +13,21 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Map<String, HttpHandler> handlers = new HashMap<>();
-        handlers.put(Constants.CATS_PATH, new Handler(new CatController(new CatService())));
-        Server server = new Server(handlers);
-        server.start();
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNext()) {
-            if ("q".equalsIgnoreCase(scanner.next())) {
-                System.out.print("Termination of the program...");
-                server.stop();
-                return;
-            } else {
-                System.out.print("To terminate the program press: q/Q: ");
-            }
-        }
+
+
+//        Map<String, HttpHandler> handlers = new HashMap<>();
+//        handlers.put(Constants.CATS_PATH, new Handler(new CatController(new CatService())));
+//        Server server = new Server(handlers);
+//        server.start();
+//        Scanner scanner = new Scanner(System.in);
+//        while (scanner.hasNext()) {
+//            if ("q".equalsIgnoreCase(scanner.next())) {
+//                System.out.print("Termination of the program...");
+//                server.stop();
+//                return;
+//            } else {
+//                System.out.print("To terminate the program press: q/Q: ");
+//            }
+//        }
     }
 }
