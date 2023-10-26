@@ -24,6 +24,34 @@ public final class OwnerDao implements Dao<Owner> {
 
     @Override
     public long create(final Owner owner) {
+        long ownerId = getOwnerId(owner);
+        if (-1 == ownerId) {
+            ownerId = createIfNotExist(owner);
+        }
+//        incrementAnimalAmount(ownerId);
+        return ownerId;
+    }
+
+    private long getOwnerId(final Owner owner) {
+        long ownerId = -1;
+        String query = """
+                SELECT owner_id FROM owner WHERE owner_name=? AND owner_age=? LIMIT 1;
+                """;
+        try (Connection connection = connectionPool.openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, owner.getName());
+            preparedStatement.setInt(2, owner.getAge());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                ownerId = resultSet.getLong("owner_id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return ownerId;
+    }
+
+    private long createIfNotExist(final Owner owner) {
         long ownerID = -1;
         String command = """
                 INSERT INTO owner (owner_name, owner_age) VALUES (?, ?);
@@ -44,48 +72,38 @@ public final class OwnerDao implements Dao<Owner> {
         return ownerID;
     }
 
-    public long getOwnerIdIfExists(final Owner owner) {
-        long ownerId = -1;
-        if (findByNameAndAge(owner)) {
-            ownerId = getOwnerId(owner);
-        }
-        return ownerId;
-    }
-
-    private boolean findByNameAndAge(final Owner owner) {
-        boolean isExist;
-        String query = """
-                SELECT owner_id FROM owner WHERE owner_name=? AND owner_age=? LIMIT 1;
+    private void incrementAnimalAmount(final long id) {
+//        long ownerID = -1;
+        String sql = """
+                  UPDATE owner SET animals_amount=animals_amount+1 WHERE owner_id=?;
                 """;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, owner.getName());
-            preparedStatement.setInt(2, owner.getAge());
-            ResultSet ownerId = preparedStatement.executeQuery();
-            isExist = ownerId.next();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
+
+//            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return isExist;
+//        return ownerID;
     }
 
-    private long getOwnerId(final Owner owner) {
-        long ownerId = -1;
-        String query = """
-                SELECT owner_id FROM owner WHERE owner_name=? AND owner_age=? LIMIT 1;
+    private void decrementAnimalAmount(final long id) {
+//        long ownerID = -1;
+        String sql = """
+                  UPDATE owner SET animals_amount=animals_amount-1 WHERE owner_id=?;
                 """;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, owner.getName());
-            preparedStatement.setInt(2, owner.getAge());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                ownerId = resultSet.getLong("owner_id");
-            }
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
+
+//            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return ownerId;
+//        return ownerID;
     }
 
     @Override
@@ -113,32 +131,40 @@ public final class OwnerDao implements Dao<Owner> {
     }
 
     @Override
-    public long update(final Owner owner) {
-        long ownerID = -1;
-        String sql = """
-                  UPDATE owner SET owner_name=?, owner_age=? WHERE owner_id=?;
+    public Owner searchById(final long id) {
+        String query = """
+                SELECT * FROM owner WHERE owner_id=?;
                 """;
+        Owner owner = null;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, owner.getName());
-            preparedStatement.setInt(2, owner.getAge());
-            preparedStatement.setLong(3, owner.getId());
-            ownerID = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerID;
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                owner = new Owner.Builder()
+                        .setId(resultSet.getLong("owner_id"))
+                        .setName(resultSet.getString("owner_name"))
+                        .setAge(resultSet.getInt("owner_age"))
+                        .setAnimalsAmount(resultSet.getInt("animals_amount"))
+                        .build();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return ownerID;
+        return owner;
     }
 
-    public long incrementAnimalAmount(final long id) {
+    @Override
+    public long update(final Owner owner) {
         long ownerID = -1;
         String sql = """
-                  UPDATE owner SET animals_amount=animals_amount+1 WHERE owner_id=?;
+                  UPDATE owner SET owner_age=? WHERE owner_id=?;
                 """;
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
+            preparedStatement.setInt(1, owner.getAge());
+            preparedStatement.setLong(2, owner.getId());
+            ownerID = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerID;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

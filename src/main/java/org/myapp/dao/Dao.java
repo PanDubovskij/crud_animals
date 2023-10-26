@@ -9,6 +9,8 @@ public sealed interface Dao<T extends BaseEntity> permits CatDao, OwnerDao {
 
     List<T> search();
 
+    T searchById(final long id);
+
     long update(final T t);
 
     boolean delete(final long id);

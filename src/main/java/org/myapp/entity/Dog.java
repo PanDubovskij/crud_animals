@@ -6,7 +6,7 @@ public final class Dog extends BaseEntity{
     private final String color;
     private final int weight;
     private final int height;
-    private final Owner owner;
+    private final long ownerId;
 
     public static final class Builder{
         private long id;
@@ -14,7 +14,7 @@ public final class Dog extends BaseEntity{
         private String color;
         private int weight;
         private int height;
-        private Owner owner;
+        private long ownerId;
 
         public Builder setId(long id) {
             this.id = id;
@@ -41,13 +41,13 @@ public final class Dog extends BaseEntity{
             return this;
         }
 
-        public Builder setOwner(Owner owner) {
-            this.owner = owner;
+        public Builder setOwnerId(long ownerId) {
+            this.ownerId = ownerId;
             return this;
         }
 
         public Dog build() {
-            return new Dog(id, name, color, weight, height, owner);
+            return new Dog(id, name, color, weight, height, ownerId);
         }
     }
 
@@ -71,16 +71,16 @@ public final class Dog extends BaseEntity{
         return height;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public long getOwner() {
+        return ownerId;
     }
 
-    private Dog(long id, String name, String color, int weight, int height, Owner owner) {
+    private Dog(long id, String name, String color, int weight, int height, long ownerId) {
         this.id = id;
         this.name = name;
         this.color = color;
         this.weight = weight;
         this.height = height;
-        this.owner = owner;
+        this.ownerId = ownerId;
     }
 }

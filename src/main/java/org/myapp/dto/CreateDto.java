@@ -8,14 +8,17 @@ public final class CreateDto {
     private final String color;
     private final int weight;
     private final int height;
-    private final Owner owner;
+    private final String ownerName;
+
+    private final int ownerAge;
 
     public static final class Builder {
         private String name;
         private String color;
         private int weight;
         private int height;
-        private Owner owner;
+        private String ownerName;
+        private int ownerAge;
 
         public Builder setName(String name) {
             this.name = name;
@@ -37,13 +40,18 @@ public final class CreateDto {
             return this;
         }
 
-        public Builder setOwner(Owner owner) {
-            this.owner = owner;
+        public Builder setOwnerName(String ownerName) {
+            this.ownerName = ownerName;
+            return this;
+        }
+
+        public Builder setOwnerAge(int ownerAge) {
+            this.ownerAge = ownerAge;
             return this;
         }
 
         public CreateDto build() {
-            return new CreateDto(name, color, weight, height, owner);
+            return new CreateDto(name, color, weight, height, ownerName, ownerAge);
         }
     }
 
@@ -64,15 +72,32 @@ public final class CreateDto {
         return height;
     }
 
-    public Owner getOwner() {
-        return owner;
+    public String getOwnerName() {
+        return ownerName;
     }
 
-    private CreateDto(String name, String color, int weight, int height, Owner owner) {
+    public int getOwnerAge() {
+        return ownerAge;
+    }
+
+    private CreateDto(String name, String color, int weight, int height, String ownerName, int ownerAge) {
         this.name = name;
         this.color = color;
         this.weight = weight;
         this.height = height;
-        this.owner = owner;
+        this.ownerName = ownerName;
+        this.ownerAge = ownerAge;
+    }
+
+    @Override
+    public String toString() {
+        return "CreateDto{" +
+                "name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", weight=" + weight +
+                ", height=" + height +
+                ", ownerName='" + ownerName + '\'' +
+                ", ownerAge=" + ownerAge +
+                '}';
     }
 }

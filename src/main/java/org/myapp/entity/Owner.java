@@ -1,6 +1,6 @@
 package org.myapp.entity;
 
-public final class Owner extends BaseEntity{
+public final class Owner extends BaseEntity {
     private final long id;
     private final String name;
     private final int age;

@@ -6,12 +6,12 @@ import org.myapp.dto.UpdateDto;
 
 import java.util.List;
 
-public interface Service {
-    long create(CreateDto createDto);
+public sealed interface Service permits CatService {
+    long create(final CreateDto createDto);
 
     List<SearchDto> search();
 
-    long update(UpdateDto updateDto);
+    long update(final UpdateDto updateDto);
 
-    boolean delete(long id);
+    boolean delete(final long id);
 }

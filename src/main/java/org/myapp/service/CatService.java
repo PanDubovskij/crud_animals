@@ -1,5 +1,8 @@
 package org.myapp.service;
 
+import org.myapp.dao.CatDao;
+import org.myapp.dao.Dao;
+import org.myapp.dao.OwnerDao;
 import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
@@ -9,75 +12,117 @@ import org.myapp.utils.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class CatService implements Service {
-
-    private final List<Cat> cats;
-//    private final List<Owner> owners;
+    private final Dao<Cat> catDao;
+    private final Dao<Owner> ownerDao;
 
     public CatService() {
-        this.cats = new ArrayList<>();
-//        this.owners = new ArrayList<>();
-        System.out.println("CatService");
+        catDao = new CatDao();
+        ownerDao = new OwnerDao();
     }
 
     @Override
-    public long create(CreateDto createDto) {
+    public long create(final CreateDto createDto) {
         //TODO: validate CreateDto
-        //Todo: map to Cat
-        //TODO: ownerDao.createOwnerIfNotExist(Owner): return ownerID
-        //TODO: add ownerId to Cat
-        //TODO: catDao.createCat(Cat): return catID
 
+        long ownerId = ownerDao.create(new Owner.Builder()
+                .setName(createDto.getOwnerName())
+                .setAge(createDto.getOwnerAge())
+                .build());
 
+        long catId = catDao.create(new Cat.Builder()
+                .setName(createDto.getName())
+                .setColor(createDto.getColor())
+                .setWeight(createDto.getWeight())
+                .setHeight(createDto.getHeight())
+                .setOwnerId(ownerId)
+                .build());
 
-
-
-
-
-
-
-
-
-
-        //validate
-
-        //map
-        Cat cat = Mapper.createDtoToEntity(createDto);
-
-        cats.add(cat);
-//        owners.add(cat.getOwner());
-        System.out.println("service create");
-        return cat.getId();
+        return catId;
     }
 
     @Override
     public List<SearchDto> search() {
-        List<SearchDto> list = cats.stream().map(Mapper::entityToSearchDto).collect(Collectors.toList());
-        System.out.println("service search");
-        return list;
+        List<Cat> cats = catDao.search();
+        List<SearchDto> searchDtos = new ArrayList<>();
+        for (Cat cat : cats) {
+            Owner owner = ownerDao.searchById(cat.getOwnerId());
+            searchDtos.add(new SearchDto.Builder()
+                    .setId(cat.getId())
+                    .setName(cat.getName())
+                    .setColor(cat.getColor())
+                    .setWeight(cat.getWeight())
+                    .setHeight(cat.getHeight())
+                    .setOwnerId(cat.getOwnerId())
+                    .setOwnerName(owner.getName())
+                    .setOwnerAge(owner.getAge())
+                    .setAnimalsAmount(owner.getAnimalsAmount())
+                    .build());
+        }
+        return searchDtos;
     }
 
     @Override
     public long update(UpdateDto updateDto) {
-        //validate
+        //валидэйтим дто
+        Cat cat = catDao.searchById(updateDto.getId());
+        System.out.printf("нашли кота по айди %s%n",cat.toString());
 
-        //map
-        Cat cat = Mapper.updateDtoToEntity(updateDto);
-        cats.set((int) (cat.getId()), cat);
-        long id = cat.getId();
-        System.out.println("service update");
-        return id;
+        Owner owner = ownerDao.searchById(cat.getOwnerId());
+        System.out.printf("нашли владельца по айди %s%n",owner.toString());
+
+        String ownerName = owner.getName();
+        System.out.printf("имя владельца %s%n", ownerName);
+
+        String updatedOwnerName = updateDto.getOwnerName();
+        System.out.printf("имя нового владельца %s%n", updatedOwnerName);
+
+        int ownerAge = owner.getAge();
+        System.out.printf("возраст владельца %d%n", ownerAge);
+
+        int updatedOwnerAge = updateDto.getOwnerAge();
+        System.out.printf("возраст нового владельца %d%n", updatedOwnerAge);
+
+        long newOwnerId = cat.getOwnerId();
+        System.out.printf("айди старого владельца %d%n", newOwnerId);
+
+        if (!(ownerName.equals(updatedOwnerName)) ||
+                ownerAge < updatedOwnerAge) {
+            newOwnerId = ownerDao.create(new Owner.Builder()
+                    .setName(updatedOwnerName)
+                    .setAge(updatedOwnerAge)
+                    .build());
+            System.out.printf("айди нового владельца %d%n", newOwnerId);
+
+        }
+        if (ownerName.equals(updatedOwnerName) &&
+                ownerAge > updatedOwnerAge) {
+            newOwnerId = ownerDao.update(new Owner.Builder()
+                    .setAge(updatedOwnerAge)
+                    .build());
+            System.out.printf("айди старого владельца но изменился возраст %d%n", newOwnerId);
+
+        }
+
+        long newCatId = catDao.update(new Cat.Builder()
+                .setName(updateDto.getName())
+                .setWeight(updateDto.getWeight())
+                .setHeight(updateDto.getHeight())
+                .setOwnerId(newOwnerId)
+                .build());
+        System.out.printf("айди обновленного кота %d%n", newCatId);
+
+
+        return newCatId;
     }
 
     @Override
     public boolean delete(long id) {
         //validate
 
-        Optional<Cat> o = Optional.of(cats.remove((int) id));
-        System.out.println("service delete");
-        return o.isPresent();
+        boolean isDeleted = catDao.delete(id);
+        //уменьшать количество питомцев у хозяина на 1
+        return isDeleted;
     }
 }

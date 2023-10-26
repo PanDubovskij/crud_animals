@@ -6,6 +6,9 @@ import org.myapp.controller.CatController;
 import org.myapp.dao.CatDao;
 import org.myapp.dao.Dao;
 import org.myapp.dao.OwnerDao;
+import org.myapp.dto.CreateDto;
+import org.myapp.dto.SearchDto;
+import org.myapp.dto.UpdateDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
 import org.myapp.server.Handler;
@@ -18,52 +21,98 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Dao<Owner> ownerDao = new OwnerDao();
-        Dao<Cat> catDao = new CatDao();
 
-        Owner owner1 = new Owner.Builder()
-                .setName("jan")
-                .setAge(20)
-                .build();
-        Owner owner2 = new Owner.Builder()
-                .setName("olga")
-                .setAge(19)
-                .build();
 
-        for (Owner owner : ownerDao.search()) {
-            System.out.println(owner.toString());
-        }
-        System.out.println();
-
-        for (Owner owner : ownerDao.search()) {
-            System.out.println(owner.toString());
-        }
-
-        Cat cat1 = new Cat.Builder()
-                .setName("rizhij")
+        CreateDto rizhiy = new CreateDto.Builder()
+                .setName("rizhiy")
                 .setColor("red")
                 .setWeight(5)
                 .setHeight(30)
-                .setOwner(owner1)
+                .setOwnerName("jan")
+                .setOwnerAge(20)
                 .build();
-
-        Cat cat2 = new Cat.Builder()
-                .setName("varia")
-                .setColor("black")
+        CreateDto varya = new CreateDto.Builder()
+                .setName("varya")
+                .setColor("black-white")
                 .setWeight(6)
                 .setHeight(25)
-                .setOwner(owner1)
+                .setOwnerName("jan")
+                .setOwnerAge(20)
                 .build();
 
-        Cat cat3 = new Cat.Builder()
+        CreateDto nusha = new CreateDto.Builder()
                 .setName("nusha")
                 .setColor("red-white")
                 .setWeight(1)
                 .setHeight(10)
-                .setOwner(owner2)
+                .setOwnerName("olga")
+                .setOwnerAge(20)
                 .build();
 
-        catDao.create(cat1);
+        UpdateDto updatedVarya1 = new UpdateDto.Builder()
+                .setId(4)
+                .setName("varya")
+                .setWeight(5)
+                .setHeight(25)
+                .setOwnerName("jan")
+                .setOwnerAge(21)
+                .build();
+
+        UpdateDto updatedRizhiy = new UpdateDto.Builder()
+                .setId(3)
+                .setName("rizhiy")
+                .setWeight(5)
+                .setHeight(30)
+                .setOwnerName("ksusha")
+                .setOwnerAge(43)
+                .build();
+
+        UpdateDto updatedNusha = new UpdateDto.Builder()
+                .setId(5)
+                .setName("nusha")
+                .setWeight(1)
+                .setHeight(15)
+                .setOwnerName("olga")
+                .setOwnerAge(20)
+                .build();
+
+        CatService catService = new CatService();
+
+
+//        System.out.println("must be no cats");
+//        for (SearchDto s : catService.search()) {
+//            System.out.println(s.toString());
+//        }
+//        System.out.println();
+
+//        catService.create(rizhiy);
+//        catService.create(varya);
+//        catService.create(nusha);
+        System.out.println("cats after create");
+        for (SearchDto s : catService.search()) {
+            System.out.println(s.toString());
+        }
+        System.out.println();
+
+        catService.update(updatedVarya1);
+        catService.update(updatedRizhiy);
+        catService.update(updatedNusha);
+        System.out.println("cats after update");
+        for (SearchDto s : catService.search()) {
+            System.out.println(s.toString());
+        }
+        System.out.println();
+
+//        catService.delete(6);
+//        System.out.println("cats after delete");
+//        for (SearchDto s : catService.search()) {
+//            System.out.println(s.toString());
+//        }
+
+
+
+
+
 
 
 //        Map<String, HttpHandler> handlers = new HashMap<>();

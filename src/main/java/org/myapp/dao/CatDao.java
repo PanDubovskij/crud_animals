@@ -1,7 +1,6 @@
 package org.myapp.dao;
 
 import org.myapp.entity.Cat;
-import org.myapp.entity.Owner;
 import org.myapp.utils.ConnectionPool;
 
 import java.sql.Connection;
@@ -39,7 +38,7 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.setString(2, cat.getColor());
             preparedStatement.setInt(3, cat.getWeight());
             preparedStatement.setInt(4, cat.getHeight());
-            preparedStatement.setLong(5, cat.getOwner().getId());
+            preparedStatement.setLong(5, cat.getOwnerId());
             preparedStatement.execute();
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -69,12 +68,7 @@ public final class CatDao implements Dao<Cat> {
                         .setColor(resultSet.getString("color"))
                         .setWeight(resultSet.getInt("weight"))
                         .setHeight(resultSet.getInt("height"))
-                        .setOwner(new Owner.Builder()
-                                .setId(resultSet.getLong("owner_id"))
-//                                .setName()
-//                                .setAge()
-//                                .setAnimalsAmount()
-                                .build())
+                        .setOwnerId(resultSet.getLong("owner_id"))
                         .build());
             }
         } catch (SQLException e) {
@@ -84,18 +78,43 @@ public final class CatDao implements Dao<Cat> {
     }
 
     @Override
+    public Cat searchById(final long id) {
+        String query = """
+                SELECT * FROM cat WHERE cat_id=?;
+                """;
+        Cat cat = null;
+        try (Connection connection = connectionPool.openConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                cat = new Cat.Builder()
+                        .setId(resultSet.getLong("cat_id"))
+                        .setName(resultSet.getString("cat_name"))
+                        .setColor(resultSet.getString("color"))
+                        .setWeight(resultSet.getInt("weight"))
+                        .setHeight(resultSet.getInt("height"))
+                        .setOwnerId(resultSet.getLong("owner_id"))
+                        .build();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return cat;
+    }
+
+    @Override
     public long update(final Cat cat) {
         long catId = -1;
         String sql = """
-                  UPDATE cat SET cat_name=?, color=?, weight=?, height=? WHERE cat_id=?;
+                  UPDATE cat SET cat_name=?, weight=?, height=? WHERE cat_id=?;
                 """;
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, cat.getName());
-            preparedStatement.setString(2, cat.getColor());
-            preparedStatement.setInt(3, cat.getWeight());
-            preparedStatement.setInt(4, cat.getHeight());
-            preparedStatement.setLong(5, cat.getId());
+            preparedStatement.setInt(2, cat.getWeight());
+            preparedStatement.setInt(3, cat.getHeight());
+            preparedStatement.setLong(4, cat.getId());
             catId = preparedStatement.executeUpdate() == 1 ? cat.getId() : catId;
         } catch (SQLException e) {
             throw new RuntimeException(e);
