@@ -49,17 +49,8 @@ public class Main {
                 .setOwnerAge(20)
                 .build();
 
-        UpdateDto updatedVarya1 = new UpdateDto.Builder()
-                .setId(4)
-                .setName("varya")
-                .setWeight(5)
-                .setHeight(25)
-                .setOwnerName("jan")
-                .setOwnerAge(21)
-                .build();
-
         UpdateDto updatedRizhiy = new UpdateDto.Builder()
-                .setId(3)
+                .setId(32)
                 .setName("rizhiy")
                 .setWeight(5)
                 .setHeight(30)
@@ -67,8 +58,17 @@ public class Main {
                 .setOwnerAge(43)
                 .build();
 
+        UpdateDto updatedVarya1 = new UpdateDto.Builder()
+                .setId(33)
+                .setName("varya")
+                .setWeight(5)
+                .setHeight(25)
+                .setOwnerName("jan")
+                .setOwnerAge(21)
+                .build();
+
         UpdateDto updatedNusha = new UpdateDto.Builder()
-                .setId(5)
+                .setId(34)
                 .setName("nusha")
                 .setWeight(1)
                 .setHeight(15)
@@ -79,11 +79,11 @@ public class Main {
         CatService catService = new CatService();
 
 
-//        System.out.println("must be no cats");
-//        for (SearchDto s : catService.search()) {
-//            System.out.println(s.toString());
-//        }
-//        System.out.println();
+        System.out.println("must be no cats");
+        for (SearchDto s : catService.search()) {
+            System.out.println(s.toString());
+        }
+        System.out.println();
 
 //        catService.create(rizhiy);
 //        catService.create(varya);
@@ -94,25 +94,20 @@ public class Main {
         }
         System.out.println();
 
-        catService.update(updatedVarya1);
-        catService.update(updatedRizhiy);
-        catService.update(updatedNusha);
+//        catService.update(updatedVarya1);
+//        catService.update(updatedRizhiy);
+//        catService.update(updatedNusha);
         System.out.println("cats after update");
         for (SearchDto s : catService.search()) {
             System.out.println(s.toString());
         }
         System.out.println();
 
-//        catService.delete(6);
+//        catService.delete(7);
 //        System.out.println("cats after delete");
 //        for (SearchDto s : catService.search()) {
 //            System.out.println(s.toString());
 //        }
-
-
-
-
-
 
 
 //        Map<String, HttpHandler> handlers = new HashMap<>();

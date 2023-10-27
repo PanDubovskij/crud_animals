@@ -66,10 +66,13 @@ public final class CatService implements Service {
     @Override
     public long update(UpdateDto updateDto) {
         //валидэйтим дто
-        Cat cat = catDao.searchById(updateDto.getId());
+
+        long catId = updateDto.getId();
+        Cat cat = catDao.searchById(catId);
         System.out.printf("нашли кота по айди %s%n",cat.toString());
 
-        Owner owner = ownerDao.searchById(cat.getOwnerId());
+        long ownerId = cat.getOwnerId();
+        Owner owner = ownerDao.searchById(ownerId);
         System.out.printf("нашли владельца по айди %s%n",owner.toString());
 
         String ownerName = owner.getName();
@@ -84,11 +87,12 @@ public final class CatService implements Service {
         int updatedOwnerAge = updateDto.getOwnerAge();
         System.out.printf("возраст нового владельца %d%n", updatedOwnerAge);
 
-        long newOwnerId = cat.getOwnerId();
-        System.out.printf("айди старого владельца %d%n", newOwnerId);
 
+        System.out.printf("айди старого владельца %d%n", ownerId);
+
+        long newOwnerId=ownerId;
         if (!(ownerName.equals(updatedOwnerName)) ||
-                ownerAge < updatedOwnerAge) {
+                ownerAge > updatedOwnerAge) {
             newOwnerId = ownerDao.create(new Owner.Builder()
                     .setName(updatedOwnerName)
                     .setAge(updatedOwnerAge)
@@ -97,8 +101,9 @@ public final class CatService implements Service {
 
         }
         if (ownerName.equals(updatedOwnerName) &&
-                ownerAge > updatedOwnerAge) {
+                ownerAge < updatedOwnerAge) {
             newOwnerId = ownerDao.update(new Owner.Builder()
+                            .setId(ownerId)
                     .setAge(updatedOwnerAge)
                     .build());
             System.out.printf("айди старого владельца но изменился возраст %d%n", newOwnerId);
@@ -106,6 +111,7 @@ public final class CatService implements Service {
         }
 
         long newCatId = catDao.update(new Cat.Builder()
+                        .setId(catId)
                 .setName(updateDto.getName())
                 .setWeight(updateDto.getWeight())
                 .setHeight(updateDto.getHeight())

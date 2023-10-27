@@ -107,14 +107,15 @@ public final class CatDao implements Dao<Cat> {
     public long update(final Cat cat) {
         long catId = -1;
         String sql = """
-                  UPDATE cat SET cat_name=?, weight=?, height=? WHERE cat_id=?;
+                  UPDATE cat SET cat_name=?, weight=?, height=?, owner_id=? WHERE cat_id=?;
                 """;
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, cat.getName());
             preparedStatement.setInt(2, cat.getWeight());
             preparedStatement.setInt(3, cat.getHeight());
-            preparedStatement.setLong(4, cat.getId());
+            preparedStatement.setLong(4, cat.getOwnerId());
+            preparedStatement.setLong(5, cat.getId());
             catId = preparedStatement.executeUpdate() == 1 ? cat.getId() : catId;
         } catch (SQLException e) {
             throw new RuntimeException(e);

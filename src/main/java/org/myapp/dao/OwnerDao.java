@@ -28,7 +28,6 @@ public final class OwnerDao implements Dao<Owner> {
         if (-1 == ownerId) {
             ownerId = createIfNotExist(owner);
         }
-//        incrementAnimalAmount(ownerId);
         return ownerId;
     }
 
@@ -70,40 +69,6 @@ public final class OwnerDao implements Dao<Owner> {
             throw new RuntimeException(e);
         }
         return ownerID;
-    }
-
-    private void incrementAnimalAmount(final long id) {
-//        long ownerID = -1;
-        String sql = """
-                  UPDATE owner SET animals_amount=animals_amount+1 WHERE owner_id=?;
-                """;
-        try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.execute();
-
-//            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-//        return ownerID;
-    }
-
-    private void decrementAnimalAmount(final long id) {
-//        long ownerID = -1;
-        String sql = """
-                  UPDATE owner SET animals_amount=animals_amount-1 WHERE owner_id=?;
-                """;
-        try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.execute();
-
-//            ownerID = preparedStatement.executeUpdate() == 1 ? id : ownerID;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-//        return ownerID;
     }
 
     @Override
