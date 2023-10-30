@@ -18,7 +18,7 @@ public enum ConnectionPool {
     INSTANCE();
 
 //    private static final String SQL_DRIVER = "org.postgresql.Driver";
-    private static final Integer DEFAULT_POOL_SIZE = 5;
+    private static final Integer DEFAULT_POOL_SIZE = 24;
 
     private String passwordKey;
     private String usernameKey;
@@ -28,8 +28,7 @@ public enum ConnectionPool {
     private BlockingQueue<Connection> pool;
     private List<Connection> sourceConnection;
 
-    ConnectionPool() {
-    }
+    ConnectionPool() {}
 
     public ConnectionPool passwordKey(String passwordKey) {
         this.passwordKey = passwordKey;

@@ -5,6 +5,9 @@ import org.myapp.entity.BaseEntity;
 import java.util.List;
 
 public sealed interface Dao<T extends BaseEntity> permits CatDao, OwnerDao {
+
+    int INVALID_ID = -1;
+
     long create(final T t);
 
     List<T> search();

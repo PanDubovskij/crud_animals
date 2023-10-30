@@ -2,10 +2,15 @@ package org.myapp.dao;
 
 import org.myapp.entity.Owner;
 import org.myapp.utils.ConnectionPool;
+import org.myapp.utils.ConnectionPoolFabric;
+import org.myapp.utils.ResultSetEntityMapper;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static org.myapp.dao.Constants.*;
 
 public final class OwnerDao implements Dao<Owner> {
 
@@ -13,36 +18,35 @@ public final class OwnerDao implements Dao<Owner> {
 
     public OwnerDao() {
         if (connectionPool == null) {
-            connectionPool = ConnectionPool.INSTANCE
-                    .urlKey("jdbc:postgresql://localhost:5432/postgres")
-                    .passwordKey("postgres")
-                    .usernameKey("postgres")
-                    .poolSize("5")
-                    .build();
+            connectionPool = ConnectionPoolFabric.createConnection();
+        }
+    }
+
+    public OwnerDao(Map<String, String> attributes) {
+        if (connectionPool == null) {
+            connectionPool = ConnectionPoolFabric.createConnection(attributes);
         }
     }
 
     @Override
     public long create(final Owner owner) {
         long ownerId = getOwnerId(owner);
-        if (-1 == ownerId) {
+        if (INVALID_ID == ownerId) {
             ownerId = createIfNotExist(owner);
         }
         return ownerId;
     }
 
     private long getOwnerId(final Owner owner) {
-        long ownerId = -1;
-        String query = """
-                SELECT owner_id FROM owner WHERE owner_name=? AND owner_age=? LIMIT 1;
-                """;
+        long ownerId = INVALID_ID;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_OWNER_ID)) {
             preparedStatement.setString(1, owner.getName());
             preparedStatement.setInt(2, owner.getAge());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                ownerId = resultSet.getLong("owner_id");
+                ownerId = resultSet.getLong(OWNER_ID);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -51,12 +55,10 @@ public final class OwnerDao implements Dao<Owner> {
     }
 
     private long createIfNotExist(final Owner owner) {
-        long ownerID = -1;
-        String command = """
-                INSERT INTO owner (owner_name, owner_age) VALUES (?, ?);
-                """;
+        long ownerID = INVALID_ID;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(command, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_OWNER, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, owner.getName());
             preparedStatement.setInt(2, owner.getAge());
             preparedStatement.execute();
@@ -74,20 +76,13 @@ public final class OwnerDao implements Dao<Owner> {
     @Override
     public List<Owner> search() {
         List<Owner> owners = new ArrayList<>();
-        String query = """
-                SELECT * FROM owner;
-                """;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_OWNERS)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                owners.add(new Owner.Builder()
-                        .setId(resultSet.getLong("owner_id"))
-                        .setName(resultSet.getString("owner_name"))
-                        .setAge(resultSet.getInt("owner_age"))
-                        .setAnimalsAmount(resultSet.getInt("animals_amount"))
-                        .build());
+                owners.add(ResultSetEntityMapper.resultSetToOwner(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -97,21 +92,14 @@ public final class OwnerDao implements Dao<Owner> {
 
     @Override
     public Owner searchById(final long id) {
-        String query = """
-                SELECT * FROM owner WHERE owner_id=?;
-                """;
+
         Owner owner = null;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_OWNER_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                owner = new Owner.Builder()
-                        .setId(resultSet.getLong("owner_id"))
-                        .setName(resultSet.getString("owner_name"))
-                        .setAge(resultSet.getInt("owner_age"))
-                        .setAnimalsAmount(resultSet.getInt("animals_amount"))
-                        .build();
+                owner = ResultSetEntityMapper.resultSetToOwner(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -121,12 +109,10 @@ public final class OwnerDao implements Dao<Owner> {
 
     @Override
     public long update(final Owner owner) {
-        long ownerID = -1;
-        String sql = """
-                  UPDATE owner SET owner_age=? WHERE owner_id=?;
-                """;
+        long ownerID = INVALID_ID;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_OWNER)) {
             preparedStatement.setInt(1, owner.getAge());
             preparedStatement.setLong(2, owner.getId());
             ownerID = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerID;
@@ -139,11 +125,9 @@ public final class OwnerDao implements Dao<Owner> {
     @Override
     public boolean delete(final long id) {
         int result;
-        String delete = """
-                DELETE FROM owner WHERE owner_id =?;
-                """;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(delete)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_OWNER)) {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -151,4 +135,28 @@ public final class OwnerDao implements Dao<Owner> {
         }
         return result == 1;
     }
+
+    private static final String SELECT_OWNER_ID = """
+            SELECT owner_id FROM owner WHERE owner_name=? AND owner_age=? LIMIT 1;
+            """;
+
+    private static final String INSERT_OWNER = """
+            INSERT INTO owner (owner_name, owner_age) VALUES (?, ?);
+            """;
+
+    private static final String SELECT_ALL_OWNERS = """
+            SELECT * FROM owner;
+            """;
+
+    private static final String SELECT_OWNER_BY_ID = """
+            SELECT * FROM owner WHERE owner_id=?;
+            """;
+
+    private static final String UPDATE_OWNER = """
+              UPDATE owner SET owner_age=? WHERE owner_id=?;
+            """;
+
+    private static final String DELETE_OWNER = """
+            DELETE FROM owner WHERE owner_id =?;
+            """;
 }

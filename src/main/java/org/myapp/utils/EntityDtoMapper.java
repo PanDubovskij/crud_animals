@@ -4,10 +4,9 @@ import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
 import org.myapp.entity.Cat;
-import org.myapp.entity.Owner;
 
-public final class Mapper {
-    public static SearchDto entityToSearchDto(Cat cat) {
+public final class EntityDtoMapper {
+    public static SearchDto entityToSearchDto(final Cat cat) {
 
         return new SearchDto.Builder()
                 .setId(cat.getId())
@@ -22,7 +21,7 @@ public final class Mapper {
                 .build();
     }
 
-    public static Cat createDtoToEntity(CreateDto createDto) {
+    public static Cat createDtoToEntity(final CreateDto createDto) {
 
         return new Cat.Builder()
                 .setName(createDto.getName())
@@ -32,7 +31,7 @@ public final class Mapper {
                 .build();
     }
 
-    public static Cat updateDtoToEntity(UpdateDto updateDto) {
+    public static Cat updateDtoToEntity(final UpdateDto updateDto) {
 
         return new Cat.Builder()
                 .setId(updateDto.getId())

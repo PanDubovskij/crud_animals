@@ -2,6 +2,8 @@ package org.myapp.dao;
 
 import org.myapp.entity.Cat;
 import org.myapp.utils.ConnectionPool;
+import org.myapp.utils.ConnectionPoolFabric;
+import org.myapp.utils.ResultSetEntityMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,30 +12,30 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class CatDao implements Dao<Cat> {
 
     private static ConnectionPool connectionPool;
 
+    public CatDao(final Map<String, String> attributes) {
+        if (connectionPool == null) {
+            connectionPool = ConnectionPoolFabric.createConnection(attributes);
+        }
+    }
+
     public CatDao() {
         if (connectionPool == null) {
-            connectionPool = ConnectionPool.INSTANCE
-                    .urlKey("jdbc:postgresql://localhost:5432/postgres")
-                    .passwordKey("postgres")
-                    .usernameKey("postgres")
-                    .poolSize("5")
-                    .build();
+            connectionPool = ConnectionPoolFabric.createConnection();
         }
     }
 
     @Override
     public long create(final Cat cat) {
-        long catID = -1;
-        String command = """
-                INSERT INTO cat (cat_name, color, weight, height, owner_id) VALUES (?, ?, ?, ?, ?);
-                """;
+        long catID = INVALID_ID;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(command, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CAT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, cat.getName());
             preparedStatement.setString(2, cat.getColor());
             preparedStatement.setInt(3, cat.getWeight());
@@ -54,22 +56,13 @@ public final class CatDao implements Dao<Cat> {
     @Override
     public List<Cat> search() {
         List<Cat> cats = new ArrayList<>();
-        String query = """
-                SELECT * FROM cat;
-                """;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CATS)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                cats.add(new Cat.Builder()
-                        .setId(resultSet.getLong("cat_id"))
-                        .setName(resultSet.getString("cat_name"))
-                        .setColor(resultSet.getString("color"))
-                        .setWeight(resultSet.getInt("weight"))
-                        .setHeight(resultSet.getInt("height"))
-                        .setOwnerId(resultSet.getLong("owner_id"))
-                        .build());
+                cats.add(ResultSetEntityMapper.resultSetToCat(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -79,23 +72,14 @@ public final class CatDao implements Dao<Cat> {
 
     @Override
     public Cat searchById(final long id) {
-        String query = """
-                SELECT * FROM cat WHERE cat_id=?;
-                """;
+
         Cat cat = null;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_CAT_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                cat = new Cat.Builder()
-                        .setId(resultSet.getLong("cat_id"))
-                        .setName(resultSet.getString("cat_name"))
-                        .setColor(resultSet.getString("color"))
-                        .setWeight(resultSet.getInt("weight"))
-                        .setHeight(resultSet.getInt("height"))
-                        .setOwnerId(resultSet.getLong("owner_id"))
-                        .build();
+                cat = ResultSetEntityMapper.resultSetToCat(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -105,12 +89,10 @@ public final class CatDao implements Dao<Cat> {
 
     @Override
     public long update(final Cat cat) {
-        long catId = -1;
-        String sql = """
-                  UPDATE cat SET cat_name=?, weight=?, height=?, owner_id=? WHERE cat_id=?;
-                """;
+        long catId = INVALID_ID;
+
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CAT)) {
             preparedStatement.setString(1, cat.getName());
             preparedStatement.setInt(2, cat.getWeight());
             preparedStatement.setInt(3, cat.getHeight());
@@ -126,11 +108,8 @@ public final class CatDao implements Dao<Cat> {
     @Override
     public boolean delete(final long id) {
         int result;
-        String delete = """
-                DELETE FROM cat WHERE cat_id =?;
-                """;
         try (Connection connection = connectionPool.openConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(delete)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_CAT)) {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -138,4 +117,20 @@ public final class CatDao implements Dao<Cat> {
         }
         return result == 1;
     }
+
+    private static final String INSERT_CAT = """
+            INSERT INTO cat (cat_name, color, weight, height, owner_id) VALUES (?, ?, ?, ?, ?);
+            """;
+    private static final String SELECT_ALL_CATS = """
+            SELECT * FROM cat;
+            """;
+    private static final String SELECT_CAT_BY_ID = """
+            SELECT * FROM cat WHERE cat_id=?;
+            """;
+    private static final String UPDATE_CAT = """
+              UPDATE cat SET cat_name=?, weight=?, height=?, owner_id=? WHERE cat_id=?;
+            """;
+    private static final String DELETE_CAT = """
+            DELETE FROM cat WHERE cat_id =?;
+            """;
 }

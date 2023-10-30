@@ -8,7 +8,6 @@ import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
-import org.myapp.utils.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +127,6 @@ public final class CatService implements Service {
         //validate
 
         boolean isDeleted = catDao.delete(id);
-        //уменьшать количество питомцев у хозяина на 1
         return isDeleted;
     }
 }
