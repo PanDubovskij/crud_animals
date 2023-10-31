@@ -1,8 +1,8 @@
-package org.myapp.utils;
+package org.myapp.util;
 
 import java.util.Map;
 
-import static org.myapp.utils.ConnectionPoolFabric.PropertiesFile.*;
+import static org.myapp.util.ConnectionPoolFabric.PropertiesFile.*;
 
 public class ConnectionPoolFabric {
 

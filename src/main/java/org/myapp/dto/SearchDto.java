@@ -1,11 +1,10 @@
 package org.myapp.dto;
 
-import org.myapp.entity.Owner;
-
 public final class SearchDto {
     private final long id;
     private final String name;
     private final String color;
+    private final int barkingVolume;
     private final int weight;
     private final int height;
     private final long ownerId;
@@ -18,6 +17,7 @@ public final class SearchDto {
         private long id;
         private String name;
         private String color;
+        private int barkingVolume;
         private int weight;
         private int height;
         private long ownerId;
@@ -38,6 +38,11 @@ public final class SearchDto {
 
         public Builder setColor(String color) {
             this.color = color;
+            return this;
+        }
+
+        public Builder setBarkingVolume(int barkingVolume) {
+            this.barkingVolume = barkingVolume;
             return this;
         }
 
@@ -72,7 +77,7 @@ public final class SearchDto {
         }
 
         public SearchDto build() {
-            return new SearchDto(id, name, color, weight, height, ownerId, ownerName, ownerAge, animalsAmount);
+            return new SearchDto(id, name, color, barkingVolume, weight, height, ownerId, ownerName, ownerAge, animalsAmount);
         }
     }
 
@@ -87,6 +92,10 @@ public final class SearchDto {
 
     public String getColor() {
         return color;
+    }
+
+    public int getBarkingVolume() {
+        return barkingVolume;
     }
 
     public int getWeight() {
@@ -113,10 +122,11 @@ public final class SearchDto {
         return animalsAmount;
     }
 
-    private SearchDto(long id, String name, String color, int weight, int height, long ownerId, String ownerName, int ownerAge, int animalsAmount) {
+    private SearchDto(long id, String name, String color, int barkingVolume, int weight, int height, long ownerId, String ownerName, int ownerAge, int animalsAmount) {
         this.id = id;
         this.name = name;
         this.color = color;
+        this.barkingVolume = barkingVolume;
         this.weight = weight;
         this.height = height;
         this.ownerId = ownerId;
@@ -131,6 +141,7 @@ public final class SearchDto {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", color='" + color + '\'' +
+                ", barkingVolume=" + barkingVolume +
                 ", weight=" + weight +
                 ", height=" + height +
                 ", ownerId=" + ownerId +

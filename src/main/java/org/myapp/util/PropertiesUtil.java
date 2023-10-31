@@ -1,4 +1,4 @@
-package org.myapp.utils;
+package org.myapp.util;
 
 import java.io.IOException;
 import java.io.InputStream;

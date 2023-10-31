@@ -3,16 +3,14 @@ package org.myapp.service;
 import org.myapp.dao.CatDao;
 import org.myapp.dao.Dao;
 import org.myapp.dao.OwnerDao;
-import org.myapp.dto.CreateDto;
-import org.myapp.dto.SearchDto;
-import org.myapp.dto.UpdateDto;
+import org.myapp.dto.CatDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CatService implements Service {
+public final class CatService implements Service<CatDto> {
     private final Dao<Cat> catDao;
     private final Dao<Owner> ownerDao;
 
@@ -22,102 +20,76 @@ public final class CatService implements Service {
     }
 
     @Override
-    public long create(final CreateDto createDto) {
-        //TODO: validate CreateDto
+    public long create(final CatDto catDto) {
+        //TODO: validate
 
-        long ownerId = ownerDao.create(new Owner.Builder()
-                .setName(createDto.getOwnerName())
-                .setAge(createDto.getOwnerAge())
-                .build());
+        Owner owner = ownerFrom(catDto);
+        long ownerId = ownerDao.create(owner);
 
-        long catId = catDao.create(new Cat.Builder()
-                .setName(createDto.getName())
-                .setColor(createDto.getColor())
-                .setWeight(createDto.getWeight())
-                .setHeight(createDto.getHeight())
-                .setOwnerId(ownerId)
-                .build());
+        Cat cat = catFrom(catDto, ownerId);
+        long catId = catDao.create(cat);
 
         return catId;
     }
 
     @Override
-    public List<SearchDto> search() {
+    public List<CatDto> search() {
         List<Cat> cats = catDao.search();
-        List<SearchDto> searchDtos = new ArrayList<>();
+        List<CatDto> catDtos = new ArrayList<>();
         for (Cat cat : cats) {
             Owner owner = ownerDao.searchById(cat.getOwnerId());
-            searchDtos.add(new SearchDto.Builder()
-                    .setId(cat.getId())
-                    .setName(cat.getName())
-                    .setColor(cat.getColor())
-                    .setWeight(cat.getWeight())
-                    .setHeight(cat.getHeight())
-                    .setOwnerId(cat.getOwnerId())
-                    .setOwnerName(owner.getName())
-                    .setOwnerAge(owner.getAge())
-                    .setAnimalsAmount(owner.getAnimalsAmount())
-                    .build());
+            CatDto catDto = catDtoFrom(cat, owner);
+            catDtos.add(catDto);
         }
-        return searchDtos;
+        return catDtos;
     }
 
     @Override
-    public long update(UpdateDto updateDto) {
+    public long update(CatDto catDto) {
         //валидэйтим дто
 
-        long catId = updateDto.getId();
+        long catId = catDto.getId();
         Cat cat = catDao.searchById(catId);
-        System.out.printf("нашли кота по айди %s%n",cat.toString());
+        System.out.printf("нашли кота по айди %s%n", cat.toString());
 
         long ownerId = cat.getOwnerId();
         Owner owner = ownerDao.searchById(ownerId);
-        System.out.printf("нашли владельца по айди %s%n",owner.toString());
+        System.out.printf("нашли владельца по айди %s%n", owner.toString());
 
         String ownerName = owner.getName();
         System.out.printf("имя владельца %s%n", ownerName);
 
-        String updatedOwnerName = updateDto.getOwnerName();
+        String updatedOwnerName = catDto.getOwnerName();
         System.out.printf("имя нового владельца %s%n", updatedOwnerName);
 
         int ownerAge = owner.getAge();
         System.out.printf("возраст владельца %d%n", ownerAge);
 
-        int updatedOwnerAge = updateDto.getOwnerAge();
+        int updatedOwnerAge = catDto.getOwnerAge();
         System.out.printf("возраст нового владельца %d%n", updatedOwnerAge);
-
 
         System.out.printf("айди старого владельца %d%n", ownerId);
 
-        long newOwnerId=ownerId;
+        long newOwnerId = ownerId;
         if (!(ownerName.equals(updatedOwnerName)) ||
                 ownerAge > updatedOwnerAge) {
-            newOwnerId = ownerDao.create(new Owner.Builder()
-                    .setName(updatedOwnerName)
-                    .setAge(updatedOwnerAge)
-                    .build());
-            System.out.printf("айди нового владельца %d%n", newOwnerId);
 
+            Owner newOwner = ownerFrom(catDto);
+            newOwnerId = ownerDao.create(newOwner);
+            System.out.printf("айди нового владельца %d%n", newOwnerId);
         }
+
         if (ownerName.equals(updatedOwnerName) &&
                 ownerAge < updatedOwnerAge) {
-            newOwnerId = ownerDao.update(new Owner.Builder()
-                            .setId(ownerId)
-                    .setAge(updatedOwnerAge)
-                    .build());
-            System.out.printf("айди старого владельца но изменился возраст %d%n", newOwnerId);
 
+            Owner newOwner = ownerFrom(catDto, ownerId);
+            newOwnerId = ownerDao.update(newOwner);
+            System.out.printf("айди старого владельца но изменился возраст %d%n", newOwnerId);
         }
 
-        long newCatId = catDao.update(new Cat.Builder()
-                        .setId(catId)
-                .setName(updateDto.getName())
-                .setWeight(updateDto.getWeight())
-                .setHeight(updateDto.getHeight())
-                .setOwnerId(newOwnerId)
-                .build());
+        Cat updatedCat = catFrom(catDto, newOwnerId);
+        long newCatId = catDao.update(updatedCat);
         System.out.printf("айди обновленного кота %d%n", newCatId);
-
 
         return newCatId;
     }
@@ -128,5 +100,45 @@ public final class CatService implements Service {
 
         boolean isDeleted = catDao.delete(id);
         return isDeleted;
+    }
+
+    private static Owner ownerFrom(CatDto catDto) {
+        return new Owner.Builder()
+                .setId(catDto.getOwnerId())
+                .setName(catDto.getOwnerName())
+                .setAge(catDto.getOwnerAge())
+                .build();
+    }
+
+    private static Owner ownerFrom(CatDto catDto, long ownerId) {
+        return new Owner.Builder()
+                .setId(ownerId)
+                .setAge(catDto.getOwnerAge())
+                .build();
+    }
+
+    private static Cat catFrom(CatDto catDto, long ownerId) {
+        return new Cat.Builder()
+                .setId(catDto.getId())
+                .setName(catDto.getName())
+                .setColor(catDto.getColor())
+                .setWeight(catDto.getWeight())
+                .setHeight(catDto.getHeight())
+                .setOwnerId(ownerId)
+                .build();
+    }
+
+    private static CatDto catDtoFrom(Cat cat, Owner owner) {
+        return new CatDto.Builder()
+                .setId(cat.getId())
+                .setName(cat.getName())
+                .setColor(cat.getColor())
+                .setWeight(cat.getWeight())
+                .setHeight(cat.getHeight())
+                .setOwnerId(cat.getOwnerId())
+                .setOwnerName(owner.getName())
+                .setOwnerAge(owner.getAge())
+                .setAnimalsAmount(owner.getAnimalsAmount())
+                .build();
     }
 }

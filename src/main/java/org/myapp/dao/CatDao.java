@@ -1,9 +1,8 @@
 package org.myapp.dao;
 
 import org.myapp.entity.Cat;
-import org.myapp.utils.ConnectionPool;
-import org.myapp.utils.ConnectionPoolFabric;
-import org.myapp.utils.ResultSetEntityMapper;
+import org.myapp.util.ConnectionPool;
+import org.myapp.util.ConnectionPoolFabric;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +12,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.myapp.dao.Constants.*;
+import static org.myapp.dao.Constants.OWNER_ID;
 
 public final class CatDao implements Dao<Cat> {
 
@@ -62,7 +64,7 @@ public final class CatDao implements Dao<Cat> {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                cats.add(ResultSetEntityMapper.resultSetToCat(resultSet));
+                cats.add(resultSetToCat(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -79,7 +81,7 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                cat = ResultSetEntityMapper.resultSetToCat(resultSet);
+                cat = resultSetToCat(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -116,6 +118,17 @@ public final class CatDao implements Dao<Cat> {
             throw new RuntimeException(e);
         }
         return result == 1;
+    }
+
+    private static Cat resultSetToCat(final ResultSet resultSet) throws SQLException {
+        return new Cat.Builder()
+                .setId(resultSet.getLong(CAT_ID))
+                .setName(resultSet.getString(CAT_NAME))
+                .setColor(resultSet.getString(CAT_COLOR))
+                .setWeight(resultSet.getInt(CAT_WEIGHT))
+                .setHeight(resultSet.getInt(CAT_HEIGHT))
+                .setOwnerId(resultSet.getLong(OWNER_ID))
+                .build();
     }
 
     private static final String INSERT_CAT = """

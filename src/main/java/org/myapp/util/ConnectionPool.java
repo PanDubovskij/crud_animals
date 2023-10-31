@@ -1,4 +1,4 @@
-package org.myapp.utils;
+package org.myapp.util;
 
 
 import org.postgresql.ds.PGSimpleDataSource;

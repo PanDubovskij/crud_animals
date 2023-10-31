@@ -1,9 +1,8 @@
 package org.myapp.dao;
 
 import org.myapp.entity.Owner;
-import org.myapp.utils.ConnectionPool;
-import org.myapp.utils.ConnectionPoolFabric;
-import org.myapp.utils.ResultSetEntityMapper;
+import org.myapp.util.ConnectionPool;
+import org.myapp.util.ConnectionPoolFabric;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -82,7 +81,7 @@ public final class OwnerDao implements Dao<Owner> {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                owners.add(ResultSetEntityMapper.resultSetToOwner(resultSet));
+                owners.add(resultSetToOwner(resultSet));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -99,7 +98,7 @@ public final class OwnerDao implements Dao<Owner> {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                owner = ResultSetEntityMapper.resultSetToOwner(resultSet);
+                owner = resultSetToOwner(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -134,6 +133,15 @@ public final class OwnerDao implements Dao<Owner> {
             throw new RuntimeException(e);
         }
         return result == 1;
+    }
+
+    private static Owner resultSetToOwner(final ResultSet resultSet) throws SQLException {
+        return new Owner.Builder()
+                .setId(resultSet.getLong(OWNER_ID))
+                .setName(resultSet.getString(OWNER_NAME))
+                .setAge(resultSet.getInt(OWNER_AGE))
+                .setAnimalsAmount(resultSet.getInt(OWNER_ANIMALS_AMOUNT))
+                .build();
     }
 
     private static final String SELECT_OWNER_ID = """

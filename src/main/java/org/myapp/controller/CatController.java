@@ -3,6 +3,7 @@ package org.myapp.controller;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import org.myapp.constants.Attributes;
+import org.myapp.dto.CatDto;
 import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
@@ -15,9 +16,9 @@ import java.util.*;
 
 public final class CatController extends Controller {
 
-    private final Service service;
+    private final Service<CatDto> service;
 
-    public CatController(final Service service) {
+    public CatController(final Service<CatDto> service) {
         this.service = service;
         System.out.println("catController");
     }
@@ -34,9 +35,10 @@ public final class CatController extends Controller {
                 .setOwnerAge(Integer.parseInt(jsonObject.getString(Attributes.OWNER_AGE)))
                 .build();
 
-        long id = service.create(createDto);
+//        long id = service.create(createDto);
         System.out.println("create in controller");
-        return id;
+//        return id;
+        return 0;
     }
 
     @Override
@@ -44,10 +46,10 @@ public final class CatController extends Controller {
 //        URI requestURI = httpExchange.getRequestURI();
 //        Map<Attributes, String> attributes = new HashMap<>();
 //        searchAttributeUrl(requestURI, attributes);
-        List<SearchDto> cats = service.search();
+        List<CatDto> cats = service.search();
 
         List<JsonObject> jsonObjects = new ArrayList<>();
-        for (SearchDto cat : cats) {
+        for (CatDto cat : cats) {
             JsonObject json = new JsonObject();
             json.put(Attributes.NAME, cat.getName());
             json.put(Attributes.COLOR, cat.getColor());
@@ -74,9 +76,10 @@ public final class CatController extends Controller {
                 .setOwnerName(jsonObject.getString(Attributes.OWNER_NAME))
                 .setOwnerAge(jsonObject.getInteger(Attributes.OWNER_AGE))
                 .build();
-        long id = service.update(updateDto);
+//        long id = service.update(updateDto);
         System.out.println("update in controller");
-        return id;
+//        return id;
+        return 0;
     }
 
     @Override

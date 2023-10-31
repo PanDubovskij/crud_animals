@@ -6,6 +6,7 @@ import org.myapp.controller.CatController;
 import org.myapp.dao.CatDao;
 import org.myapp.dao.Dao;
 import org.myapp.dao.OwnerDao;
+import org.myapp.dto.CatDto;
 import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
@@ -80,7 +81,7 @@ public class Main {
 
 
         System.out.println("must be no cats");
-        for (SearchDto s : catService.search()) {
+        for (CatDto s : catService.search()) {
             System.out.println(s.toString());
         }
         System.out.println();
@@ -89,7 +90,7 @@ public class Main {
 //        catService.create(varya);
 //        catService.create(nusha);
         System.out.println("cats after create");
-        for (SearchDto s : catService.search()) {
+        for (CatDto s : catService.search()) {
             System.out.println(s.toString());
         }
         System.out.println();
@@ -98,7 +99,7 @@ public class Main {
 //        catService.update(updatedRizhiy);
 //        catService.update(updatedNusha);
         System.out.println("cats after update");
-        for (SearchDto s : catService.search()) {
+        for (CatDto s : catService.search()) {
             System.out.println(s.toString());
         }
         System.out.println();

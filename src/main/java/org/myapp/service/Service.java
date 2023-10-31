@@ -1,17 +1,19 @@
 package org.myapp.service;
 
+import org.myapp.dto.BaseDto;
 import org.myapp.dto.CreateDto;
 import org.myapp.dto.SearchDto;
 import org.myapp.dto.UpdateDto;
+import org.myapp.entity.BaseEntity;
 
 import java.util.List;
 
-public sealed interface Service permits CatService {
-    long create(final CreateDto createDto);
+public sealed interface Service<T extends BaseDto> permits CatService {
+    long create(final T t);
 
-    List<SearchDto> search();
+    List<T> search();
 
-    long update(final UpdateDto updateDto);
+    long update(final T t);
 
     boolean delete(final long id);
 }
