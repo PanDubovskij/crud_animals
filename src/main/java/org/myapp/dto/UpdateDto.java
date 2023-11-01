@@ -2,6 +2,7 @@ package org.myapp.dto;
 
 import org.myapp.entity.Owner;
 
+@Deprecated
 public final class UpdateDto {
     private final long id;
     private final String name;

@@ -4,15 +4,13 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import org.myapp.constants.Attributes;
 import org.myapp.dto.CatDto;
-import org.myapp.dto.CreateDto;
-import org.myapp.dto.SearchDto;
-import org.myapp.dto.UpdateDto;
-import org.myapp.entity.Owner;
 import org.myapp.server.Controller;
 import org.myapp.service.Service;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public final class CatController extends Controller {
 
@@ -24,25 +22,24 @@ public final class CatController extends Controller {
     }
 
     @Override
-    public long create(HttpExchange httpExchange) {
+    protected long create(HttpExchange httpExchange) {
         JsonObject jsonObject = readRequestFromJson(httpExchange);
-        CreateDto createDto = new CreateDto.Builder()
+        CatDto catDto = new CatDto.Builder()
                 .setName(jsonObject.getString(Attributes.NAME))
                 .setColor(jsonObject.getString(Attributes.COLOR))
-                .setHeight(Integer.parseInt(jsonObject.getString(Attributes.HEIGHT)))
                 .setWeight(Integer.parseInt(jsonObject.getString(Attributes.WEIGHT)))
+                .setHeight(Integer.parseInt(jsonObject.getString(Attributes.HEIGHT)))
                 .setOwnerName(jsonObject.getString(Attributes.OWNER_NAME))
                 .setOwnerAge(Integer.parseInt(jsonObject.getString(Attributes.OWNER_AGE)))
                 .build();
 
-//        long id = service.create(createDto);
+        long id = service.create(catDto);
         System.out.println("create in controller");
-//        return id;
-        return 0;
+        return id;
     }
 
     @Override
-    public List<JsonObject> search(HttpExchange httpExchange) {
+    protected List<JsonObject> search(HttpExchange httpExchange) {
 //        URI requestURI = httpExchange.getRequestURI();
 //        Map<Attributes, String> attributes = new HashMap<>();
 //        searchAttributeUrl(requestURI, attributes);
@@ -55,9 +52,9 @@ public final class CatController extends Controller {
             json.put(Attributes.COLOR, cat.getColor());
             json.put(Attributes.WEIGHT, cat.getWeight());
             json.put(Attributes.HEIGHT, cat.getHeight());
-//            json.put(Attributes.OWNER_NAME, cat.getOwner().getName());
-//            json.put(Attributes.OWNER_AGE, cat.getOwner().getAge());
-//            json.put(Attributes.ANIMALS_NUMBER, cat.getOwner().getAnimalsAmount());
+            json.put(Attributes.OWNER_NAME, cat.getOwnerName());
+            json.put(Attributes.OWNER_AGE, cat.getOwnerAge());
+            json.put(Attributes.ANIMALS_NUMBER, cat.getAnimalsAmount());
             jsonObjects.add(json);
         }
         System.out.println("search in controller");
@@ -66,29 +63,27 @@ public final class CatController extends Controller {
     }
 
     @Override
-    public long update(HttpExchange httpExchange) {
+    protected long update(HttpExchange httpExchange) {
         JsonObject jsonObject = readRequestFromJson(httpExchange);
-        UpdateDto updateDto = new UpdateDto.Builder()
+        CatDto catDto = new CatDto.Builder()
                 .setId(jsonObject.getLong(Attributes.ID))
                 .setName(jsonObject.getString(Attributes.NAME))
-                .setHeight(jsonObject.getInteger(Attributes.HEIGHT))
                 .setWeight(jsonObject.getInteger(Attributes.WEIGHT))
+                .setHeight(jsonObject.getInteger(Attributes.HEIGHT))
                 .setOwnerName(jsonObject.getString(Attributes.OWNER_NAME))
                 .setOwnerAge(jsonObject.getInteger(Attributes.OWNER_AGE))
                 .build();
-//        long id = service.update(updateDto);
+        long id = service.update(catDto);
         System.out.println("update in controller");
-//        return id;
-        return 0;
+        return id;
     }
 
     @Override
-    public boolean delete(HttpExchange httpExchange) {
+    protected boolean delete(HttpExchange httpExchange) {
         URI uri = httpExchange.getRequestURI();
         Optional<String> id = readAttributes(uri, Attributes.ID);
         boolean result = false;
         if (id.isPresent()) {
-
             result = service.delete(Long.parseLong(id.get()));
         }
         System.out.println("delete in controller");

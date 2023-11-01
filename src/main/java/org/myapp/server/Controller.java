@@ -2,13 +2,11 @@ package org.myapp.server;
 
 import com.github.cliftonlabs.json_simple.JsonException;
 import com.github.cliftonlabs.json_simple.JsonKey;
+import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-
-import com.github.cliftonlabs.json_simple.JsonObject;
 import org.myapp.constants.Attributes;
-
 
 import java.io.*;
 import java.net.URI;
@@ -21,78 +19,114 @@ import java.util.Optional;
 import static org.myapp.constants.Constants.*;
 
 public abstract class Controller {
-    public abstract long create(HttpExchange httpExchange);
+    protected abstract long create(final HttpExchange httpExchange);
 
-    public abstract List<JsonObject> search(HttpExchange httpExchange);
+    protected abstract List<JsonObject> search(final HttpExchange httpExchange);
 
-    public abstract long update(HttpExchange httpExchange);
+    protected abstract long update(final HttpExchange httpExchange);
 
-    public abstract boolean delete(HttpExchange httpExchange);
+    protected abstract boolean delete(final HttpExchange httpExchange);
 
-    public void execute(HttpExchange httpExchange) throws IOException {
+    public void execute(final HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
         String requestType = httpExchange.getRequestURI().getPath();
 
-        switch (requestMethod) {
-            case GET -> {
-                if (requestType.matches(REG_GET_SEARCH)) {
+        if (requestType.matches(REG_COMMON)) {
+
+            switch (requestMethod) {
+                case POST -> {
+                    JsonObject jsonObject = new JsonObject();
+                    long id = create(httpExchange);
+                    jsonObject.put(Attributes.ID, id);
+                    int status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
+                    writeResponse(httpExchange, List.of(jsonObject), status);
+                }
+
+                case GET -> {
                     List<JsonObject> search = search(httpExchange);
                     writeResponse(httpExchange, search, STATUS_OK);
-                } else {
-                    response(httpExchange, STATUS_NOT_FOUND, -1);
                 }
-            }
-            case DELETE -> {
-                int typeRequest;
-                if (requestType.matches(REG_DELETE)) {
-                    typeRequest = delete(httpExchange) ? STATUS_NO_CONTENT : STATUS_NOT_FOUND;
-                } else {
-                    typeRequest = STATUS_NOT_FOUND;
-                }
-                response(httpExchange, typeRequest, -1);
-            }
-            case POST -> {
-                JsonObject jsonObject = new JsonObject();
-                long id;
-                int status;
-                if (requestType.matches(REG_POST_CREATE)) {
-                    id = create(httpExchange);
+
+                case PUT -> {
+                    JsonObject jsonObject = new JsonObject();
+                    long id = update(httpExchange);
                     jsonObject.put(Attributes.ID, id);
-                    status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
+                    int status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
                     writeResponse(httpExchange, List.of(jsonObject), status);
-                } else {
-//                    notSupportRequest(httpExchange, requestType, "Request type {} does noy support");
-                    response(httpExchange, STATUS_NOT_FOUND, -1);
                 }
-            }
-            case PUT -> {
-                JsonObject jsonObject = new JsonObject();
-                long id;
-                int status;
-                if (requestType.matches(REG_POST_UPDATE)) {
-                    id = update(httpExchange);
-                    jsonObject.put(Attributes.ID, id);
-                    status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
-                    writeResponse(httpExchange, List.of(jsonObject), status);
-                } else {
-                    response(httpExchange, STATUS_NOT_FOUND, -1);
+
+                case DELETE -> {
+                    int typeRequest = delete(httpExchange) ? STATUS_NO_CONTENT : STATUS_NOT_FOUND;
+
+                    response(httpExchange, typeRequest, -1);
                 }
+                default -> response(httpExchange, STATUS_BAD_REQUEST, -1);
             }
-            default -> notSupportRequest(httpExchange, requestMethod, "Method {} does not support");
+        } else {
+            response(httpExchange, STATUS_BAD_REQUEST, -1);
         }
+//        switch (requestMethod) {
+//            case GET -> {
+//                if (requestType.matches(REG_GET_SEARCH)) {
+//                    List<JsonObject> search = search(httpExchange);
+//                    writeResponse(httpExchange, search, STATUS_OK);
+//                } else {
+//                    response(httpExchange, STATUS_NOT_FOUND, -1);
+//                }
+//            }
+//            case DELETE -> {
+//                int typeRequest;
+//                if (requestType.matches(REG_DELETE)) {
+//                    typeRequest = delete(httpExchange) ? STATUS_NO_CONTENT : STATUS_NOT_FOUND;
+//                } else {
+//                    typeRequest = STATUS_NOT_FOUND;
+//                }
+//                response(httpExchange, typeRequest, -1);
+//            }
+//            case POST -> {
+//                JsonObject jsonObject = new JsonObject();
+//                long id;
+//                int status;
+//                if (requestType.matches(REG_POST_CREATE)) {
+//                    id = create(httpExchange);
+//                    jsonObject.put(Attributes.ID, id);
+//                    status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
+//                    writeResponse(httpExchange, List.of(jsonObject), status);
+//                } else {
+////                    notSupportRequest(httpExchange, requestType, "Request type {} does noy support");
+//                    response(httpExchange, STATUS_NOT_FOUND, -1);
+//                }
+//            }
+//            case PUT -> {
+//                JsonObject jsonObject = new JsonObject();
+//                long id;
+//                int status;
+//                if (requestType.matches(REG_POST_UPDATE)) {
+//                    id = update(httpExchange);
+//                    jsonObject.put(Attributes.ID, id);
+//                    status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
+//                    writeResponse(httpExchange, List.of(jsonObject), status);
+//                } else {
+//                    response(httpExchange, STATUS_NOT_FOUND, -1);
+//                }
+//            }
+//            default -> notSupportRequest(httpExchange, requestMethod, "Method {} does not support");
+//        }
         System.out.println("execute");
     }
 
     private void writeResponse(final HttpExchange httpExchange, List<JsonObject> jsonObjects, int status) throws IOException {
-        Headers responseHeaders = httpExchange.getResponseHeaders();
-        StringBuilder db = new StringBuilder();
+
+        StringBuilder body = new StringBuilder();
         for (JsonObject jsonObject : jsonObjects) {
-            db.append(jsonObject.toJson());
+            body.append(jsonObject.toJson());
         }
+
+        Headers responseHeaders = httpExchange.getResponseHeaders();
         responseHeaders.add("Content-type", "application/json");
-        response(httpExchange, status, db.toString().getBytes(StandardCharsets.UTF_8).length);
+        response(httpExchange, status, body.toString().getBytes(StandardCharsets.UTF_8).length);
         try (OutputStream responseBody = httpExchange.getResponseBody()) {
-            responseBody.write(db.toString().getBytes(StandardCharsets.UTF_8));
+            responseBody.write(body.toString().getBytes(StandardCharsets.UTF_8));
             responseBody.flush();
         }
         System.out.println("writeResponse");
@@ -127,17 +161,17 @@ public abstract class Controller {
     }
 
     protected JsonObject readRequestFromJson(final HttpExchange httpExchange) {
-        JsonObject deserialize = null;
+        JsonObject deserialized = null;
         try (InputStream requestBody = httpExchange.getRequestBody();
              BufferedReader reader = new BufferedReader(new InputStreamReader(requestBody, StandardCharsets.UTF_8))) {
             if (reader.ready()) {
-                deserialize = (JsonObject) Jsoner.deserialize(reader);
+                deserialized = (JsonObject) Jsoner.deserialize(reader);
             }
         } catch (IOException | JsonException e) {
             throw new RuntimeException(e);
         }
         System.out.println("readRequestFromJson");
-        return deserialize;
+        return deserialized;
     }
 
     protected void searchAttributeUrl(URI requestURI, Map<Attributes, String> attributes) {

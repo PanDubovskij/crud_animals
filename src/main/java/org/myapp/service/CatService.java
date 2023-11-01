@@ -14,9 +14,9 @@ public final class CatService implements Service<CatDto> {
     private final Dao<Cat> catDao;
     private final Dao<Owner> ownerDao;
 
-    public CatService() {
-        catDao = new CatDao();
-        ownerDao = new OwnerDao();
+    public CatService(Dao<Cat> catDao, Dao<Owner> ownerDao) {
+        this.catDao = catDao;
+        this.ownerDao = ownerDao;
     }
 
     @Override
@@ -45,7 +45,7 @@ public final class CatService implements Service<CatDto> {
     }
 
     @Override
-    public long update(CatDto catDto) {
+    public long update(final CatDto catDto) {
         //валидэйтим дто
 
         long catId = catDto.getId();
@@ -95,14 +95,14 @@ public final class CatService implements Service<CatDto> {
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(final long id) {
         //validate
 
         boolean isDeleted = catDao.delete(id);
         return isDeleted;
     }
 
-    private static Owner ownerFrom(CatDto catDto) {
+    private Owner ownerFrom(final CatDto catDto) {
         return new Owner.Builder()
                 .setId(catDto.getOwnerId())
                 .setName(catDto.getOwnerName())
@@ -110,14 +110,14 @@ public final class CatService implements Service<CatDto> {
                 .build();
     }
 
-    private static Owner ownerFrom(CatDto catDto, long ownerId) {
+    private Owner ownerFrom(final CatDto catDto, final long ownerId) {
         return new Owner.Builder()
                 .setId(ownerId)
                 .setAge(catDto.getOwnerAge())
                 .build();
     }
 
-    private static Cat catFrom(CatDto catDto, long ownerId) {
+    private Cat catFrom(final CatDto catDto, final long ownerId) {
         return new Cat.Builder()
                 .setId(catDto.getId())
                 .setName(catDto.getName())
@@ -128,7 +128,7 @@ public final class CatService implements Service<CatDto> {
                 .build();
     }
 
-    private static CatDto catDtoFrom(Cat cat, Owner owner) {
+    private CatDto catDtoFrom(final Cat cat, final Owner owner) {
         return new CatDto.Builder()
                 .setId(cat.getId())
                 .setName(cat.getName())

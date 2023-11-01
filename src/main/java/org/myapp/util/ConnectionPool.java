@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit;
 public enum ConnectionPool {
 
     INSTANCE();
-
-//    private static final String SQL_DRIVER = "org.postgresql.Driver";
     private static final Integer DEFAULT_POOL_SIZE = 24;
 
     private String passwordKey;
@@ -28,7 +26,8 @@ public enum ConnectionPool {
     private BlockingQueue<Connection> pool;
     private List<Connection> sourceConnection;
 
-    ConnectionPool() {}
+    ConnectionPool() {
+    }
 
     public ConnectionPool passwordKey(String passwordKey) {
         this.passwordKey = passwordKey;
@@ -55,6 +54,7 @@ public enum ConnectionPool {
         initConnectionPool();
         return this;
     }
+
     public Connection openConnection() {
         Connection connection = null;
         try {
@@ -110,12 +110,4 @@ public enum ConnectionPool {
         dataSource.setPassword(passwordKey);
         return dataSource;
     }
-
-//    private void loadDriver() {
-//        try {
-//            Class.forName(SQL_DRIVER);
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 }

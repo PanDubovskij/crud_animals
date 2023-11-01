@@ -1,10 +1,6 @@
 package org.myapp.service;
 
 import org.myapp.dto.BaseDto;
-import org.myapp.dto.CreateDto;
-import org.myapp.dto.SearchDto;
-import org.myapp.dto.UpdateDto;
-import org.myapp.entity.BaseEntity;
 
 import java.util.List;
 

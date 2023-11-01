@@ -1,5 +1,5 @@
 package org.myapp.dto;
-
+@Deprecated
 public final class SearchDto {
     private final long id;
     private final String name;

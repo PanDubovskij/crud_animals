@@ -1,7 +1,6 @@
 package org.myapp.dto;
 
-import org.myapp.entity.Owner;
-
+@Deprecated
 public final class CreateDto {
 
     private final String name;

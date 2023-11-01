@@ -9,6 +9,7 @@ public enum Attributes implements JsonKey {
     COLOR,
     WEIGHT,
     HEIGHT,
+    OWNER_ID,
     OWNER_NAME,
     OWNER_AGE,
     ANIMALS_NUMBER;
