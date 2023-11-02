@@ -14,14 +14,13 @@ public final class Constants {
     public static final int STATUS_BAD_REQUEST = 400;
     public static final int STATUS_NOT_FOUND = 404;
 
-    public static final String REG_POST_CREATE = "/.+/create";
-    public static final String REG_POST_UPDATE = "/.+/update";
-    public static final String REG_DELETE = "/.+/delete";
-    public static final String REG_GET_SEARCH = "/.+/search";
-
     public static final String REG_COMMON = "/.+/";
     public static final String REG_ATTRIBUTES_DELIMITER = "&";
     public static final String REG_ATTRIBUTE_DELIMITER = "=";
+
+
+    public static final String REG_DIGIT = "\\d+";
+
 
     public static final String CATS_PATH = "/cats";
     public static final String DOGS_PATH = "/dogs";

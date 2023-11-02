@@ -19,11 +19,11 @@ import java.util.Optional;
 import static org.myapp.constants.Constants.*;
 
 public abstract class Controller {
-    protected abstract long create(final HttpExchange httpExchange);
+    protected abstract JsonObject create(final HttpExchange httpExchange);
 
     protected abstract List<JsonObject> search(final HttpExchange httpExchange);
 
-    protected abstract long update(final HttpExchange httpExchange);
+    protected abstract JsonObject update(final HttpExchange httpExchange);
 
     protected abstract boolean delete(final HttpExchange httpExchange);
 
@@ -35,9 +35,8 @@ public abstract class Controller {
 
             switch (requestMethod) {
                 case POST -> {
-                    JsonObject jsonObject = new JsonObject();
-                    long id = create(httpExchange);
-                    jsonObject.put(Attributes.ID, id);
+                    JsonObject jsonObject = create(httpExchange);
+                    long id = jsonObject.getLong(Attributes.ID);
                     int status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
                     writeResponse(httpExchange, List.of(jsonObject), status);
                 }
@@ -48,9 +47,8 @@ public abstract class Controller {
                 }
 
                 case PUT -> {
-                    JsonObject jsonObject = new JsonObject();
-                    long id = update(httpExchange);
-                    jsonObject.put(Attributes.ID, id);
+                    JsonObject jsonObject = update(httpExchange);
+                    long id = jsonObject.getLong(Attributes.ID);
                     int status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
                     writeResponse(httpExchange, List.of(jsonObject), status);
                 }
@@ -152,11 +150,12 @@ public abstract class Controller {
     }
 
     protected Optional<String> readAttributes(final URI uri, JsonKey key) {
+        final int VALUE = 1;
         final String path = uri.getQuery();
         System.out.println("readAttributes");
         return path != null ? Arrays.stream(path.split(REG_ATTRIBUTES_DELIMITER))
                 .filter(a -> a.contains(key.getKey()))
-                .map(p -> p.split(REG_ATTRIBUTE_DELIMITER)[1])
+                .map(p -> p.split(REG_ATTRIBUTE_DELIMITER)[VALUE])
                 .findFirst() : Optional.empty();
     }
 

@@ -3,12 +3,14 @@ package org.myapp;
 import com.sun.net.httpserver.HttpHandler;
 import org.myapp.constants.Constants;
 import org.myapp.controller.CatController;
+import org.myapp.controller.ControllerFactory;
 import org.myapp.dao.CatDao;
 import org.myapp.dao.OwnerDao;
 import org.myapp.dto.CatDto;
 import org.myapp.server.Handler;
 import org.myapp.server.Server;
 import org.myapp.service.CatService;
+import org.myapp.util.ConnectionPool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +106,7 @@ public class Main {
 
 
         Map<String, HttpHandler> handlers = new HashMap<>();
-        handlers.put(Constants.CATS_PATH, new Handler(new CatController(new CatService(new CatDao(), new OwnerDao()))));
+        handlers.put(Constants.CATS_PATH, new Handler(ControllerFactory.newCatController()));
 //        handlers.put(Constants.DOGS_PATH, new Handler(new DogController(new DogService(new DogDao(), new OwnerDao()))));
         Server server = new Server(handlers);
         server.start();
@@ -113,6 +115,7 @@ public class Main {
             if ("q".equalsIgnoreCase(scanner.next())) {
                 System.out.print("Termination of the program...");
                 server.stop();
+                ConnectionPool.INSTANCE.destroyPool();
                 return;
             } else {
                 System.out.print("To terminate the program press: q/Q: ");

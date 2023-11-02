@@ -1,14 +1,15 @@
 package org.myapp.service;
 
-import org.myapp.dao.CatDao;
 import org.myapp.dao.Dao;
-import org.myapp.dao.OwnerDao;
 import org.myapp.dto.CatDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
+import org.myapp.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.myapp.constants.Constants.REG_DIGIT;
 
 public final class CatService implements Service<CatDto> {
     private final Dao<Cat> catDao;
@@ -22,6 +23,7 @@ public final class CatService implements Service<CatDto> {
     @Override
     public long create(final CatDto catDto) {
         //TODO: validate
+
 
         Owner owner = ownerFrom(catDto);
         long ownerId = ownerDao.create(owner);
@@ -95,10 +97,14 @@ public final class CatService implements Service<CatDto> {
     }
 
     @Override
-    public boolean delete(final long id) {
+    public boolean delete(final String id) {
         //validate
+        Validator<String> validatorId = Validator.of(id)
+                .validator(i -> i.matches(REG_DIGIT), "id is not digit.")
+                .validator(i -> Long.parseLong(i) > 0, "id lower then zero.");
 
-        boolean isDeleted = catDao.delete(id);
+
+        boolean isDeleted = catDao.delete(Long.parseLong(id));
         return isDeleted;
     }
 

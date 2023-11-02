@@ -11,5 +11,5 @@ public sealed interface Service<T extends BaseDto> permits CatService {
 
     long update(final T t);
 
-    boolean delete(final long id);
+    boolean delete(final String id);
 }
