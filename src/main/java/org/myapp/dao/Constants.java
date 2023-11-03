@@ -1,7 +1,6 @@
 package org.myapp.dao;
 
 public final class Constants {
-
     public static final String CAT_ID = "cat_id";
     public static final String CAT_NAME = "cat_name";
     public static final String CAT_COLOR = "color";

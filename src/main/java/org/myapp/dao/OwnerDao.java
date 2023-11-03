@@ -1,19 +1,24 @@
 package org.myapp.dao;
 
 import org.myapp.entity.Owner;
-import org.myapp.util.ConnectionPool;
-import org.myapp.util.ConnectionPoolFabric;
+import org.myapp.connection.ConnectionPool;
+import org.myapp.connection.ConnectionPoolFabric;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.myapp.dao.Constants.*;
+import static org.myapp.util.Constants.INVALID_ID;
 
 public final class OwnerDao implements Dao<Owner> {
-
     private static ConnectionPool connectionPool;
+
+    private static final Logger logger = Logger.getLogger(OwnerDao.class.getName());
 
     public OwnerDao() {
         if (connectionPool == null) {
@@ -48,13 +53,14 @@ public final class OwnerDao implements Dao<Owner> {
                 ownerId = resultSet.getLong(OWNER_ID);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
+        logger.info("owner id: " + ownerId);
         return ownerId;
     }
 
     private long createIfNotExist(final Owner owner) {
-        long ownerID = INVALID_ID;
+        long ownerId = INVALID_ID;
 
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_OWNER, Statement.RETURN_GENERATED_KEYS)) {
@@ -63,13 +69,14 @@ public final class OwnerDao implements Dao<Owner> {
             preparedStatement.execute();
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    ownerID = generatedKeys.getLong(1);
+                    ownerId = generatedKeys.getLong(1);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
-        return ownerID;
+        logger.info("owner id: " + ownerId);
+        return ownerId;
     }
 
     @Override
@@ -81,61 +88,68 @@ public final class OwnerDao implements Dao<Owner> {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                owners.add(resultSetToOwner(resultSet));
+                owners.add(ownerFrom(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
         return owners;
     }
 
     @Override
-    public Owner searchById(final long id) {
+    public Optional<Owner> searchBy(final long id) {
 
-        Owner owner = null;
+        Optional<Owner> optionalOwner = Optional.empty();
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_OWNER_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                owner = resultSetToOwner(resultSet);
+                optionalOwner = Optional.of(ownerFrom(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
-        return owner;
+        optionalOwner.ifPresent(owner -> logger.info(owner.toString()));
+        if (optionalOwner.isEmpty()) {
+            logger.warning("nothing to search");
+        }
+        return optionalOwner;
     }
 
     @Override
     public long update(final Owner owner) {
-        long ownerID = INVALID_ID;
+        long ownerId = INVALID_ID;
 
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_OWNER)) {
             preparedStatement.setInt(1, owner.getAge());
             preparedStatement.setLong(2, owner.getId());
-            ownerID = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerID;
+            ownerId = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerId;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
-        return ownerID;
+        logger.info("owner id: " + ownerId);
+        return ownerId;
     }
 
     @Override
     public boolean delete(final long id) {
-        int result;
+        final int INVALID_RESULT = -1;
+        int result = INVALID_RESULT;
 
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_OWNER)) {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
+        logger.info("deleted rows: " + result);
         return result == 1;
     }
 
-    private static Owner resultSetToOwner(final ResultSet resultSet) throws SQLException {
+    private Owner ownerFrom(final ResultSet resultSet) throws SQLException {
         return new Owner.Builder()
                 .setId(resultSet.getLong(OWNER_ID))
                 .setName(resultSet.getString(OWNER_NAME))

@@ -29,7 +29,15 @@ public class Validator<T> {
         return messages.isEmpty();
     }
 
-    public T get() {
-        return object;
+    public T get() throws IllegalStateException {
+        if (messages.isEmpty()) {
+            return object;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String msg : messages) {
+            sb.append(msg).append(", ");
+        }
+        throw new IllegalStateException(sb.toString());
     }
 }

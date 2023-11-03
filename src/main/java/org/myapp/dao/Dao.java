@@ -3,16 +3,15 @@ package org.myapp.dao;
 import org.myapp.entity.BaseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public sealed interface Dao<T extends BaseEntity> permits CatDao, OwnerDao {
-
-    int INVALID_ID = -1;
 
     long create(final T t);
 
     List<T> search();
 
-    T searchById(final long id);
+    Optional<T> searchBy(final long id);
 
     long update(final T t);
 

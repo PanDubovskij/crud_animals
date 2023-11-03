@@ -6,10 +6,7 @@ import java.util.List;
 
 public sealed interface Service<T extends BaseDto> permits CatService {
     long create(final T t);
-
     List<T> search();
-
     long update(final T t);
-
-    boolean delete(final String id);
+    boolean delete(final long id);
 }

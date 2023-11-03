@@ -2,15 +2,19 @@ package org.myapp.controller;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
-import org.myapp.constants.Attributes;
 import org.myapp.dto.CatDto;
-import org.myapp.server.Controller;
 import org.myapp.service.Service;
+import org.myapp.util.Validator;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+
+import static org.myapp.controller.Constants.REG_DIGIT;
+import static org.myapp.controller.Constants.REG_NOT_BLANK;
+import static org.myapp.util.Constants.INVALID_ID;
 
 public final class CatController extends Controller {
 
@@ -18,19 +22,37 @@ public final class CatController extends Controller {
 
     public CatController(final Service<CatDto> service) {
         this.service = service;
-        System.out.println("catController");
     }
 
     @Override
     protected JsonObject create(final HttpExchange httpExchange) {
-        JsonObject requestJson = readRequestFromJson(httpExchange);
-        CatDto catDto = createCatDtoFrom(requestJson);
+        long id = INVALID_ID;
 
-        long id = service.create(catDto);
+        Optional<JsonObject> optionalRequestJson = readRequestFromJson(httpExchange);
+        if (optionalRequestJson.isPresent()) {
+            JsonObject requestJson = optionalRequestJson.get();
 
+            logger.info(requestJson.getString(Attributes.NAME));
+
+            Validator<JsonObject> validator = Validator.of(requestJson)
+                    .validator(c -> c.getString(Attributes.NAME).matches(REG_NOT_BLANK), "invalid name")
+                    .validator(c -> c.getString(Attributes.COLOR).matches(REG_NOT_BLANK), "invalid color")
+                    .validator(c -> c.getInteger(Attributes.WEIGHT).toString().matches(REG_DIGIT), "invalid weight")
+                    .validator(c -> c.getInteger(Attributes.HEIGHT).toString().matches(REG_DIGIT), "invalid height")
+                    .validator(c -> c.getString(Attributes.OWNER_NAME).matches(REG_NOT_BLANK), "invalid owner name")
+                    .validator(c -> c.getInteger(Attributes.OWNER_AGE).toString().matches(REG_DIGIT), "invalid owner age");
+            try {
+                requestJson = validator.get();
+                CatDto catDto = createdCatDtoFrom(requestJson);
+                id = service.create(catDto);
+            } catch (IllegalStateException e) {
+                logger.log(Level.WARNING, "invalid json", e);
+            }
+        } else {
+            logger.warning("no json");
+        }
         JsonObject responseJson = new JsonObject();
         responseJson.put(Attributes.ID, id);
-        System.out.println("create in controller");
 
         return responseJson;
     }
@@ -47,20 +69,36 @@ public final class CatController extends Controller {
             JsonObject json = jsonFrom(catDto);
             jsonObjects.add(json);
         }
-        System.out.println("search in controller");
 
         return jsonObjects;
     }
 
     @Override
     protected JsonObject update(final HttpExchange httpExchange) {
-        JsonObject requestJson = readRequestFromJson(httpExchange);
-        CatDto catDto = updateCatDtoFrom(requestJson);
+        long id = INVALID_ID;
 
-        long id = service.update(catDto);
+        Optional<JsonObject> optionalRequestJson = readRequestFromJson(httpExchange);
+        if (optionalRequestJson.isPresent()) {
+            JsonObject requestJson = optionalRequestJson.get();
+            Validator<JsonObject> validator = Validator.of(requestJson)
+                    .validator(c -> c.getLong(Attributes.ID).toString().matches(REG_DIGIT), "invalid id")
+                    .validator(c -> c.getString(Attributes.NAME).matches(REG_NOT_BLANK), "invalid name")
+                    .validator(c -> c.getInteger(Attributes.WEIGHT).toString().matches(REG_DIGIT), "invalid weight")
+                    .validator(c -> c.getInteger(Attributes.HEIGHT).toString().matches(REG_DIGIT), "invalid height")
+                    .validator(c -> c.getString(Attributes.OWNER_NAME).matches(REG_NOT_BLANK), "invalid owner name")
+                    .validator(c -> c.getInteger(Attributes.OWNER_AGE).toString().matches(REG_DIGIT), "invalid owner age");
+            try {
+                requestJson = validator.get();
+                CatDto catDto = updatedCatDtoFrom(requestJson);
+                id = service.update(catDto);
+            } catch (IllegalStateException e) {
+                logger.log(Level.WARNING, "invalid json", e);
+            }
+        } else {
+            logger.warning("no json");
+        }
         JsonObject responseJson = new JsonObject();
         responseJson.put(Attributes.ID, id);
-        System.out.println("update in controller");
 
         return responseJson;
     }
@@ -68,16 +106,23 @@ public final class CatController extends Controller {
     @Override
     protected boolean delete(final HttpExchange httpExchange) {
         URI uri = httpExchange.getRequestURI();
-        Optional<String> id = readAttributes(uri, Attributes.ID);
+        Optional<String> optionalId = readAttributes(uri, Attributes.ID);
         boolean result = false;
-        if (id.isPresent()) {
-            result = service.delete(id.get());
+
+        if (optionalId.isPresent()) {
+            String id = optionalId.get();
+            Validator<String> validatorId = Validator.of(id)
+                    .validator(i -> i.matches(REG_DIGIT), "id is not a number");
+            try {
+                id = validatorId.get();
+                result = service.delete(Long.parseLong(id));
+            } catch (IllegalStateException ignored) {
+            }
         }
-        System.out.println("delete in controller");
         return result;
     }
 
-    private CatDto createCatDtoFrom(final JsonObject jsonObject) {
+    private CatDto createdCatDtoFrom(final JsonObject jsonObject) {
         return new CatDto.Builder()
                 .setName(jsonObject.getString(Attributes.NAME))
                 .setColor(jsonObject.getString(Attributes.COLOR))
@@ -88,7 +133,7 @@ public final class CatController extends Controller {
                 .build();
     }
 
-    private CatDto updateCatDtoFrom(final JsonObject jsonObject) {
+    private CatDto updatedCatDtoFrom(final JsonObject jsonObject) {
         return new CatDto.Builder()
                 .setId(jsonObject.getLong(Attributes.ID))
                 .setName(jsonObject.getString(Attributes.NAME))

@@ -1,4 +1,4 @@
-package org.myapp.constants;
+package org.myapp.controller;
 
 import com.github.cliftonlabs.json_simple.JsonKey;
 

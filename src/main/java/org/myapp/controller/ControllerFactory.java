@@ -2,7 +2,6 @@ package org.myapp.controller;
 
 import org.myapp.dao.CatDao;
 import org.myapp.dao.OwnerDao;
-import org.myapp.server.Controller;
 import org.myapp.service.CatService;
 
 public class ControllerFactory {

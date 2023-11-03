@@ -1,24 +1,24 @@
 package org.myapp.dao;
 
 import org.myapp.entity.Cat;
-import org.myapp.util.ConnectionPool;
-import org.myapp.util.ConnectionPoolFabric;
+import org.myapp.connection.ConnectionPool;
+import org.myapp.connection.ConnectionPoolFabric;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.myapp.dao.Constants.*;
-import static org.myapp.dao.Constants.OWNER_ID;
+import static org.myapp.util.Constants.INVALID_ID;
 
 public final class CatDao implements Dao<Cat> {
-
     private static ConnectionPool connectionPool;
+
+    private static final Logger logger = Logger.getLogger(CatDao.class.getName());
 
     public CatDao(final Map<String, String> attributes) {
         if (connectionPool == null) {
@@ -34,7 +34,7 @@ public final class CatDao implements Dao<Cat> {
 
     @Override
     public long create(final Cat cat) {
-        long catID = INVALID_ID;
+        long catId = INVALID_ID;
 
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CAT, Statement.RETURN_GENERATED_KEYS)) {
@@ -46,13 +46,14 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.execute();
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    catID = generatedKeys.getLong(1);
+                    catId = generatedKeys.getLong(1);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
-        return catID;
+        logger.info("cat id: " + catId);
+        return catId;
     }
 
     @Override
@@ -61,32 +62,35 @@ public final class CatDao implements Dao<Cat> {
 
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CATS)) {
-
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                cats.add(resultSetToCat(resultSet));
+                cats.add(catFrom(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
         return cats;
     }
 
     @Override
-    public Cat searchById(final long id) {
+    public Optional<Cat> searchBy(final long id) {
+        Optional<Cat> optionalCat = Optional.empty();
 
-        Cat cat = null;
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_CAT_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                cat = resultSetToCat(resultSet);
+                optionalCat = Optional.of(catFrom(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
-        return cat;
+        optionalCat.ifPresent(cat -> logger.info(cat.toString()));
+        if (optionalCat.isEmpty()) {
+            logger.warning("nothing to read");
+        }
+        return optionalCat;
     }
 
     @Override
@@ -102,25 +106,29 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.setLong(5, cat.getId());
             catId = preparedStatement.executeUpdate() == 1 ? cat.getId() : catId;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
+        logger.info("cat id: " + catId);
         return catId;
     }
 
     @Override
     public boolean delete(final long id) {
-        int result;
+        final int INVALID_RESULT = -1;
+        int result = INVALID_RESULT;
+
         try (Connection connection = connectionPool.openConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_CAT)) {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with sql", e);
         }
+        logger.info("deleted rows: " + result);
         return result == 1;
     }
 
-    private static Cat resultSetToCat(final ResultSet resultSet) throws SQLException {
+    private Cat catFrom(final ResultSet resultSet) throws SQLException {
         return new Cat.Builder()
                 .setId(resultSet.getLong(CAT_ID))
                 .setName(resultSet.getString(CAT_NAME))

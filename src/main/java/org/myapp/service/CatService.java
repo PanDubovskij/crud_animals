@@ -4,12 +4,12 @@ import org.myapp.dao.Dao;
 import org.myapp.dto.CatDto;
 import org.myapp.entity.Cat;
 import org.myapp.entity.Owner;
-import org.myapp.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.myapp.constants.Constants.REG_DIGIT;
+import static org.myapp.util.Constants.INVALID_ID;
 
 public final class CatService implements Service<CatDto> {
     private final Dao<Cat> catDao;
@@ -22,90 +22,70 @@ public final class CatService implements Service<CatDto> {
 
     @Override
     public long create(final CatDto catDto) {
-        //TODO: validate
-
-
         Owner owner = ownerFrom(catDto);
         long ownerId = ownerDao.create(owner);
-
         Cat cat = catFrom(catDto, ownerId);
-        long catId = catDao.create(cat);
-
-        return catId;
+        return catDao.create(cat);
     }
 
     @Override
     public List<CatDto> search() {
-        List<Cat> cats = catDao.search();
         List<CatDto> catDtos = new ArrayList<>();
+
+        List<Cat> cats = catDao.search();
         for (Cat cat : cats) {
-            Owner owner = ownerDao.searchById(cat.getOwnerId());
-            CatDto catDto = catDtoFrom(cat, owner);
-            catDtos.add(catDto);
+            Optional<Owner> owner = ownerDao.searchBy(cat.getOwnerId());
+            if (owner.isPresent()) {
+                CatDto catDto = catDtoFrom(cat, owner.get());
+                catDtos.add(catDto);
+            }
         }
         return catDtos;
     }
 
     @Override
     public long update(final CatDto catDto) {
-        //валидэйтим дто
+        long newCatId = INVALID_ID;
 
         long catId = catDto.getId();
-        Cat cat = catDao.searchById(catId);
-        System.out.printf("нашли кота по айди %s%n", cat.toString());
+        Optional<Cat> cat = catDao.searchBy(catId);
 
-        long ownerId = cat.getOwnerId();
-        Owner owner = ownerDao.searchById(ownerId);
-        System.out.printf("нашли владельца по айди %s%n", owner.toString());
+        if (cat.isPresent()) {
+            long ownerId = cat.get().getOwnerId();
+            Optional<Owner> owner = ownerDao.searchBy(ownerId);
 
-        String ownerName = owner.getName();
-        System.out.printf("имя владельца %s%n", ownerName);
+            if (owner.isPresent()) {
+                String ownerName = owner.get().getName();
+                String updatedOwnerName = catDto.getOwnerName();
 
-        String updatedOwnerName = catDto.getOwnerName();
-        System.out.printf("имя нового владельца %s%n", updatedOwnerName);
+                int ownerAge = owner.get().getAge();
+                int updatedOwnerAge = catDto.getOwnerAge();
 
-        int ownerAge = owner.getAge();
-        System.out.printf("возраст владельца %d%n", ownerAge);
+                long newOwnerId = ownerId;
+                if (!(ownerName.equals(updatedOwnerName)) ||
+                        ownerAge > updatedOwnerAge) {
 
-        int updatedOwnerAge = catDto.getOwnerAge();
-        System.out.printf("возраст нового владельца %d%n", updatedOwnerAge);
+                    Owner newOwner = ownerFrom(catDto);
+                    newOwnerId = ownerDao.create(newOwner);
+                }
 
-        System.out.printf("айди старого владельца %d%n", ownerId);
+                if (ownerName.equals(updatedOwnerName) &&
+                        ownerAge < updatedOwnerAge) {
 
-        long newOwnerId = ownerId;
-        if (!(ownerName.equals(updatedOwnerName)) ||
-                ownerAge > updatedOwnerAge) {
+                    Owner newOwner = ownerFrom(catDto, ownerId);
+                    newOwnerId = ownerDao.update(newOwner);
+                }
 
-            Owner newOwner = ownerFrom(catDto);
-            newOwnerId = ownerDao.create(newOwner);
-            System.out.printf("айди нового владельца %d%n", newOwnerId);
+                Cat updatedCat = catFrom(catDto, newOwnerId);
+                newCatId = catDao.update(updatedCat);
+            }
         }
-
-        if (ownerName.equals(updatedOwnerName) &&
-                ownerAge < updatedOwnerAge) {
-
-            Owner newOwner = ownerFrom(catDto, ownerId);
-            newOwnerId = ownerDao.update(newOwner);
-            System.out.printf("айди старого владельца но изменился возраст %d%n", newOwnerId);
-        }
-
-        Cat updatedCat = catFrom(catDto, newOwnerId);
-        long newCatId = catDao.update(updatedCat);
-        System.out.printf("айди обновленного кота %d%n", newCatId);
-
         return newCatId;
     }
 
     @Override
-    public boolean delete(final String id) {
-        //validate
-        Validator<String> validatorId = Validator.of(id)
-                .validator(i -> i.matches(REG_DIGIT), "id is not digit.")
-                .validator(i -> Long.parseLong(i) > 0, "id lower then zero.");
-
-
-        boolean isDeleted = catDao.delete(Long.parseLong(id));
-        return isDeleted;
+    public boolean delete(final long id) {
+        return catDao.delete(id);
     }
 
     private Owner ownerFrom(final CatDto catDto) {

@@ -7,33 +7,33 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Server {
     private HttpServer server;
-
-
     private final Map<String, HttpHandler> handlers = new HashMap<>();
+
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     public Server(Map<String, HttpHandler> handlers) {
         this.handlers.putAll(handlers);
-        System.out.println("Server");
     }
 
     public void start() {
         try {
             server = HttpServer.create();
             server.bind(new InetSocketAddress(8080), 0);
-            handlers.forEach((path, hand) -> server.createContext(path, hand::handle));
+            handlers.forEach((path, hand) -> server.createContext(path, hand));
             server.start();
-            System.out.println("start");
+            logger.info("server started");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.WARNING, "some issues with server", e);
         }
     }
 
     public void stop() {
-//        ConnectionPool.INSTANCE.destroyPool();
         server.stop(1);
-        System.out.println("stop");
+        logger.info("server stopped");
     }
 }

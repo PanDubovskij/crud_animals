@@ -3,6 +3,8 @@ package org.myapp.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PropertiesUtil {
 
@@ -24,7 +26,7 @@ public class PropertiesUtil {
         try (InputStream resourceAsStream = PropertiesUtil.class.getClassLoader().getResourceAsStream(PATH_FILL)) {
             PROPERTIES.load(resourceAsStream);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Logger.getLogger(PropertiesUtil.class.getName()).log(Level.WARNING, "can't load properties", e);
         }
     }
 

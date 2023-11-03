@@ -1,16 +1,11 @@
 package org.myapp;
 
 import com.sun.net.httpserver.HttpHandler;
-import org.myapp.constants.Constants;
-import org.myapp.controller.CatController;
+import org.myapp.controller.Constants;
 import org.myapp.controller.ControllerFactory;
-import org.myapp.dao.CatDao;
-import org.myapp.dao.OwnerDao;
-import org.myapp.dto.CatDto;
-import org.myapp.server.Handler;
+import org.myapp.controller.Handler;
 import org.myapp.server.Server;
-import org.myapp.service.CatService;
-import org.myapp.util.ConnectionPool;
+import org.myapp.connection.ConnectionPool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,7 +108,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNext()) {
             if ("q".equalsIgnoreCase(scanner.next())) {
-                System.out.print("Termination of the program...");
+                System.out.print("Termination of the program...\n");
                 server.stop();
                 ConnectionPool.INSTANCE.destroyPool();
                 return;

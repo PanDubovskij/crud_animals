@@ -1,13 +1,14 @@
-package org.myapp.util;
+package org.myapp.connection;
+
+import org.myapp.util.PropertiesUtil;
 
 import java.util.Map;
 
-import static org.myapp.util.ConnectionPoolFabric.PropertiesFile.*;
+import static org.myapp.connection.ConnectionPoolFabric.PropertiesFile.*;
 
 public class ConnectionPoolFabric {
 
     private ConnectionPoolFabric() {
-        throw new UnsupportedOperationException();
     }
 
     public static class PropertiesFile {
