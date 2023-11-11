@@ -14,10 +14,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * ConnectionPool manage connections to db
+ */
 public enum ConnectionPool {
     INSTANCE();
     private static final Integer DEFAULT_POOL_SIZE = 24;
-    private static final Logger logger = Logger.getLogger(ConnectionPool.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConnectionPool.class.getName());
 
     private String urlKey;
     private String usernameKey;
@@ -48,6 +51,11 @@ public enum ConnectionPool {
         return this;
     }
 
+    /**
+     * Establishes a connection with db
+     *
+     * @return configured connection pool
+     */
     public ConnectionPool build() {
         String poolSizeValue = poolSize;
         int size = poolSizeValue == null ? DEFAULT_POOL_SIZE : Integer.parseInt(poolSizeValue);
@@ -69,7 +77,7 @@ public enum ConnectionPool {
             }
         } catch (InterruptedException | SQLException e) {
             Thread.currentThread().interrupt();
-            logger.log(Level.WARNING, "thread interrupted or timeout < 0", e);
+            LOGGER.log(Level.WARNING, "thread interrupted or timeout < 0", e);
         }
         return connection;
     }
@@ -79,7 +87,7 @@ public enum ConnectionPool {
             try {
                 connection.close();
             } catch (SQLException e) {
-                logger.log(Level.WARNING, "can't close connection", e);
+                LOGGER.log(Level.WARNING, "can't close connection", e);
             }
         }
     }
@@ -96,7 +104,7 @@ public enum ConnectionPool {
             pool.add(proxyConnection);
             sourceConnection.add(connection);
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "can't get connection from db", e);
+            LOGGER.log(Level.WARNING, "can't get connection from db", e);
         }
     }
 

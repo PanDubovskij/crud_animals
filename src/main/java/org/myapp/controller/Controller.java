@@ -18,9 +18,12 @@ import java.util.logging.Logger;
 
 import static org.myapp.controller.Constants.*;
 
-public abstract class Controller {
+/**
+ * Provide base functionality of interactions with user
+ */
+public abstract sealed class Controller permits CatController {
 
-    protected static final Logger logger = Logger.getLogger(Controller.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
 
     protected abstract JsonObject create(final HttpExchange httpExchange);
 
@@ -30,19 +33,27 @@ public abstract class Controller {
 
     protected abstract boolean delete(final HttpExchange httpExchange);
 
+    /**
+     * Template method.
+     * <p>
+     * Execute POST GET UPDATE DELETE methods.
+     *
+     * @param httpExchange
+     * @throws IOException if something went wrong with writing or reading the data
+     */
     public void execute(final HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
         String requestType = httpExchange.getRequestURI().getPath();
 
-        logger.info("request method: " + requestMethod + " and request path: " + requestType);
+        LOGGER.info("request method: " + requestMethod + " and request path: " + requestType);
 
         if (requestType.matches(REG_COMMON_ENDPOINT)) {
-            logger.info("path matches");
+            LOGGER.info("path matches");
             switch (requestMethod) {
                 case POST -> {
                     JsonObject jsonObject = create(httpExchange);
                     long id = jsonObject.getLong(Attributes.ID);
-                    logger.info("created id: " + id);
+                    LOGGER.info("created id: " + id);
                     int status = id < 0 ? STATUS_BAD_REQUEST : STATUS_CREATED;
                     writeResponse(httpExchange, List.of(jsonObject), status);
                 }
@@ -55,7 +66,7 @@ public abstract class Controller {
                 case PUT -> {
                     JsonObject jsonObject = update(httpExchange);
                     long id = jsonObject.getLong(Attributes.ID);
-                    logger.info("updated id: " + id);
+                    LOGGER.info("updated id: " + id);
                     int status = id < 0 ? STATUS_NOT_FOUND : STATUS_CREATED;
                     writeResponse(httpExchange, List.of(jsonObject), status);
                 }
@@ -65,12 +76,12 @@ public abstract class Controller {
                     response(httpExchange, typeRequest, -1);
                 }
                 default -> {
-                    logger.warning("method doesn't match");
+                    LOGGER.warning("method doesn't match");
                     response(httpExchange, STATUS_BAD_REQUEST, -1);
                 }
             }
         } else {
-            logger.warning("path doesn't match");
+            LOGGER.warning("path doesn't match");
             response(httpExchange, STATUS_BAD_REQUEST, -1);
         }
     }
@@ -81,7 +92,7 @@ public abstract class Controller {
         for (JsonObject jsonObject : jsonObjects) {
             body.append(jsonObject.toJson());
         }
-        logger.info(body.toString());
+        LOGGER.info(body.toString());
         Headers responseHeaders = httpExchange.getResponseHeaders();
         responseHeaders.add("Content-type", "application/json");
         response(httpExchange, status, body.toString().getBytes(StandardCharsets.UTF_8).length);
@@ -95,11 +106,18 @@ public abstract class Controller {
         try {
             httpExchange.sendResponseHeaders(status, responseLength);
         } catch (IOException e) {
-            logger.log(Level.WARNING, "some issues with writing response", e);
+            LOGGER.log(Level.WARNING, "some issues with writing response", e);
         }
     }
 
-    protected Optional<String> readAttributes(final URI uri, JsonKey key) {
+    /**
+     * Trying to read params from given uri
+     *
+     * @param uri with some params
+     * @param key name of the param
+     * @return value of requested param
+     */
+    protected Optional<String> readAttributes(final URI uri, final JsonKey key) {
         final int VALUE = 1;
         final String path = uri.getQuery();
         Optional<String> attributes = path != null ? Arrays.stream(path.split(REG_ATTRIBUTES_DELIMITER))
@@ -107,13 +125,19 @@ public abstract class Controller {
                 .map(p -> p.split(REG_ATTRIBUTE_DELIMITER)[VALUE])
                 .findFirst() : Optional.empty();
 
-        attributes.ifPresent(logger::info);
+        attributes.ifPresent(LOGGER::info);
         if (attributes.isEmpty()) {
-            logger.warning("nothing to read");
+            LOGGER.warning("nothing to read");
         }
         return attributes;
     }
 
+    /**
+     * Simpy read json from given http
+     *
+     * @param httpExchange
+     * @return Optional with json, if some issues then empty Optional
+     */
     protected Optional<JsonObject> readRequestFromJson(final HttpExchange httpExchange) {
         Optional<JsonObject> deserialized = Optional.empty();
 
@@ -121,9 +145,10 @@ public abstract class Controller {
              BufferedReader reader = new BufferedReader(new InputStreamReader(requestBody, StandardCharsets.UTF_8))) {
             if (reader.ready()) {
                 deserialized = Optional.ofNullable((JsonObject) Jsoner.deserialize(reader));
+//                logger.info(deserialized.get().toJson());
             }
         } catch (IOException | JsonException e) {
-            logger.log(Level.WARNING, "can't deserialize json", e);
+            LOGGER.log(Level.WARNING, "can't deserialize json", e);
         }
         return deserialized;
     }

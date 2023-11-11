@@ -1,4 +1,6 @@
 package org.myapp.entity;
-
-public sealed abstract class BaseEntity permits Cat, Dog, Owner {
+/**
+ * Base class of Entity hierarchy.
+ */
+public sealed abstract class BaseEntity permits Cat, Owner {
 }

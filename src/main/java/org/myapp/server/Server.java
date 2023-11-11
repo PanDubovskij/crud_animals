@@ -10,30 +10,40 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Something like facade of Sun's {@link HttpServer}
+ */
 public final class Server {
     private HttpServer server;
     private final Map<String, HttpHandler> handlers = new HashMap<>();
 
-    private static final Logger logger = Logger.getLogger(Server.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
 
     public Server(Map<String, HttpHandler> handlers) {
         this.handlers.putAll(handlers);
     }
 
+
+    /**
+     * Bind server context with handlers and start server
+     */
     public void start() {
         try {
             server = HttpServer.create();
             server.bind(new InetSocketAddress(8080), 0);
             handlers.forEach((path, hand) -> server.createContext(path, hand));
             server.start();
-            logger.info("server started");
+            LOGGER.info("server started");
         } catch (IOException e) {
-            logger.log(Level.WARNING, "some issues with server", e);
+            LOGGER.log(Level.WARNING, "some issues with server", e);
         }
     }
 
+    /**
+     * stop the server
+     */
     public void stop() {
         server.stop(1);
-        logger.info("server stopped");
+        LOGGER.info("server stopped");
     }
 }

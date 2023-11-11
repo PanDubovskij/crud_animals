@@ -1,6 +1,10 @@
 package org.myapp.controller;
 
-public final class Constants {
+
+/**
+ * This class provides constants for controllers
+ */
+final class Constants {
     public static final String POST = "POST";
     public static final String GET = "GET";
     public static final String PUT = "PUT";
@@ -16,11 +20,9 @@ public final class Constants {
     public static final String REG_ATTRIBUTES_DELIMITER = "&";
     public static final String REG_ATTRIBUTE_DELIMITER = "=";
 
-    public static final String CATS_PATH = "/cats";
-    public static final String DOGS_PATH = "/dogs";
-
     public static final String REG_DIGIT = "^(0|[1-9][0-9]*)$";
     public static final String REG_NOT_BLANK = "[a-zA-Z]{2,50}";
+
     private Constants() {
     }
 }

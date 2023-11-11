@@ -1,5 +1,8 @@
 package org.myapp.entity;
 
+/**
+ * This class provides Cat entity for interactions with dao
+ */
 public final class Cat extends BaseEntity {
     private final long id;
     private final String name;
@@ -8,6 +11,17 @@ public final class Cat extends BaseEntity {
     private final int height;
     private final long ownerId;
 
+    private Cat(long id, String name, String color, int weight, int height, long ownerId) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.weight = weight;
+        this.height = height;
+        this.ownerId = ownerId;
+    }
+    /**
+     * You can create Cat only via this builder.
+     */
     public static final class Builder {
         private long id;
         private String name;
@@ -74,16 +88,6 @@ public final class Cat extends BaseEntity {
     public long getOwnerId() {
         return ownerId;
     }
-
-    private Cat(long id, String name, String color, int weight, int height, long ownerId) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.weight = weight;
-        this.height = height;
-        this.ownerId = ownerId;
-    }
-
 
     @Override
     public String toString() {

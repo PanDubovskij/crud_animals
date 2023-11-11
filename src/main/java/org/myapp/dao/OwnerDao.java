@@ -1,8 +1,8 @@
 package org.myapp.dao;
 
-import org.myapp.entity.Owner;
 import org.myapp.connection.ConnectionPool;
 import org.myapp.connection.ConnectionPoolFabric;
+import org.myapp.entity.Owner;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,23 +15,38 @@ import java.util.logging.Logger;
 import static org.myapp.dao.Constants.*;
 import static org.myapp.util.Constants.INVALID_ID;
 
+/**
+ * This class works with {@link Owner} entities.
+ */
 public final class OwnerDao implements Dao<Owner> {
     private static ConnectionPool connectionPool;
 
-    private static final Logger logger = Logger.getLogger(OwnerDao.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(OwnerDao.class.getName());
 
+    /**
+     * Constructor with default connection
+     */
     public OwnerDao() {
         if (connectionPool == null) {
             connectionPool = ConnectionPoolFabric.createConnection();
         }
     }
 
+    /**
+     * @param attributes of your connection to db
+     */
     public OwnerDao(Map<String, String> attributes) {
         if (connectionPool == null) {
             connectionPool = ConnectionPoolFabric.createConnection(attributes);
         }
     }
 
+    /**
+     * Create owner if not exists otherwise return id of existing owner
+     *
+     * @param owner entity need to be created.
+     * @return id of created owner, if something went wrong return -1.
+     */
     @Override
     public long create(final Owner owner) {
         long ownerId = getOwnerId(owner);
@@ -53,9 +68,9 @@ public final class OwnerDao implements Dao<Owner> {
                 ownerId = resultSet.getLong(OWNER_ID);
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("owner id: " + ownerId);
+        LOGGER.info("owner id: " + ownerId);
         return ownerId;
     }
 
@@ -73,12 +88,17 @@ public final class OwnerDao implements Dao<Owner> {
                 }
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("owner id: " + ownerId);
+        LOGGER.info("owner id: " + ownerId);
         return ownerId;
     }
 
+    /**
+     * Search all owners.
+     *
+     * @return List of all exciting owners, if there's no owners then return empty list.
+     */
     @Override
     public List<Owner> search() {
         List<Owner> owners = new ArrayList<>();
@@ -91,11 +111,17 @@ public final class OwnerDao implements Dao<Owner> {
                 owners.add(ownerFrom(resultSet));
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
         return owners;
     }
 
+    /**
+     * Search owner by id.
+     *
+     * @param id of required owner
+     * @return {@link Optional} with owner if there's owner with given id, otherwise return empty Optional
+     */
     @Override
     public Optional<Owner> searchBy(final long id) {
 
@@ -108,15 +134,21 @@ public final class OwnerDao implements Dao<Owner> {
                 optionalOwner = Optional.of(ownerFrom(resultSet));
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        optionalOwner.ifPresent(owner -> logger.info(owner.toString()));
+        optionalOwner.ifPresent(owner -> LOGGER.info(owner.toString()));
         if (optionalOwner.isEmpty()) {
-            logger.warning("nothing to search");
+            LOGGER.warning("nothing to search");
         }
         return optionalOwner;
     }
 
+    /**
+     * Update owner with given id
+     *
+     * @param owner new entity need to be replaced with old one
+     * @return return id of updated owner, if something went wrong return -1
+     */
     @Override
     public long update(final Owner owner) {
         long ownerId = INVALID_ID;
@@ -127,12 +159,18 @@ public final class OwnerDao implements Dao<Owner> {
             preparedStatement.setLong(2, owner.getId());
             ownerId = preparedStatement.executeUpdate() == 1 ? owner.getId() : ownerId;
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("owner id: " + ownerId);
+        LOGGER.info("owner id: " + ownerId);
         return ownerId;
     }
 
+    /**
+     * Delete owner by id.
+     *
+     * @param id provided id of entity to be deleted
+     * @return return true if owner was deleted, otherwise false
+     */
     @Override
     public boolean delete(final long id) {
         final int INVALID_RESULT = -1;
@@ -143,9 +181,9 @@ public final class OwnerDao implements Dao<Owner> {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("deleted rows: " + result);
+        LOGGER.info("deleted rows: " + result);
         return result == 1;
     }
 

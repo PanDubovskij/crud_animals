@@ -4,7 +4,6 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import org.myapp.dto.CatDto;
 import org.myapp.service.Service;
-import org.myapp.util.Validator;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,6 +15,9 @@ import static org.myapp.controller.Constants.REG_DIGIT;
 import static org.myapp.controller.Constants.REG_NOT_BLANK;
 import static org.myapp.util.Constants.INVALID_ID;
 
+/**
+ * This class implements abstract methods of {@link Controller} for cats domain
+ */
 public final class CatController extends Controller {
 
     private final Service<CatDto> service;
@@ -24,6 +26,12 @@ public final class CatController extends Controller {
         this.service = service;
     }
 
+    /**
+     * Validate json and then trying to add cat with owner.
+     *
+     * @param httpExchange
+     * @return json with id of created cat, if not valid or something went wrong return -1
+     */
     @Override
     protected JsonObject create(final HttpExchange httpExchange) {
         long id = INVALID_ID;
@@ -32,7 +40,7 @@ public final class CatController extends Controller {
         if (optionalRequestJson.isPresent()) {
             JsonObject requestJson = optionalRequestJson.get();
 
-            logger.info(requestJson.getString(Attributes.NAME));
+            LOGGER.info(requestJson.getString(Attributes.NAME));
 
             Validator<JsonObject> validator = Validator.of(requestJson)
                     .validator(c -> c.getString(Attributes.NAME).matches(REG_NOT_BLANK), "invalid name")
@@ -46,10 +54,11 @@ public final class CatController extends Controller {
                 CatDto catDto = createdCatDtoFrom(requestJson);
                 id = service.create(catDto);
             } catch (IllegalStateException e) {
-                logger.log(Level.WARNING, "invalid json", e);
+                LOGGER.log(Level.WARNING, "invalid json", e);
             }
         } else {
-            logger.warning("no json");
+            LOGGER.warning("no json");
+//            logger.info(optionalRequestJson.get().toString());
         }
         JsonObject responseJson = new JsonObject();
         responseJson.put(Attributes.ID, id);
@@ -57,11 +66,14 @@ public final class CatController extends Controller {
         return responseJson;
     }
 
+    /**
+     * Search all cats with their owners.
+     *
+     * @param httpExchange
+     * @return list of jsons, if there's nothing return empty list
+     */
     @Override
     protected List<JsonObject> search(final HttpExchange httpExchange) {
-//        URI requestURI = httpExchange.getRequestURI();
-//        Map<Attributes, String> attributes = new HashMap<>();
-//        searchAttributeUrl(requestURI, attributes);
         List<CatDto> catDtos = service.search();
 
         List<JsonObject> jsonObjects = new ArrayList<>();
@@ -69,10 +81,15 @@ public final class CatController extends Controller {
             JsonObject json = jsonFrom(catDto);
             jsonObjects.add(json);
         }
-
         return jsonObjects;
     }
 
+    /**
+     * Validate json and the trying to update cat and owner
+     *
+     * @param httpExchange
+     * @return json with updated id of cat, if not valid or something went wrong then -1
+     */
     @Override
     protected JsonObject update(final HttpExchange httpExchange) {
         long id = INVALID_ID;
@@ -92,10 +109,10 @@ public final class CatController extends Controller {
                 CatDto catDto = updatedCatDtoFrom(requestJson);
                 id = service.update(catDto);
             } catch (IllegalStateException e) {
-                logger.log(Level.WARNING, "invalid json", e);
+                LOGGER.log(Level.WARNING, "invalid json", e);
             }
         } else {
-            logger.warning("no json");
+            LOGGER.warning("no json");
         }
         JsonObject responseJson = new JsonObject();
         responseJson.put(Attributes.ID, id);
@@ -103,6 +120,11 @@ public final class CatController extends Controller {
         return responseJson;
     }
 
+    /**
+     * Validate json and trying to delete cat
+     * @param httpExchange
+     * @return true if cat was deleted otherwise false
+     */
     @Override
     protected boolean delete(final HttpExchange httpExchange) {
         URI uri = httpExchange.getRequestURI();

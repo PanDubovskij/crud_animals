@@ -1,8 +1,8 @@
 package org.myapp.dao;
 
-import org.myapp.entity.Cat;
 import org.myapp.connection.ConnectionPool;
 import org.myapp.connection.ConnectionPoolFabric;
+import org.myapp.entity.Cat;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,23 +15,38 @@ import java.util.logging.Logger;
 import static org.myapp.dao.Constants.*;
 import static org.myapp.util.Constants.INVALID_ID;
 
+/**
+ * This class works with {@link Cat} entities.
+ */
 public final class CatDao implements Dao<Cat> {
     private static ConnectionPool connectionPool;
 
-    private static final Logger logger = Logger.getLogger(CatDao.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CatDao.class.getName());
 
-    public CatDao(final Map<String, String> attributes) {
-        if (connectionPool == null) {
-            connectionPool = ConnectionPoolFabric.createConnection(attributes);
-        }
-    }
-
+    /**
+     * Constructor with default connection
+     */
     public CatDao() {
         if (connectionPool == null) {
             connectionPool = ConnectionPoolFabric.createConnection();
         }
     }
 
+    /**
+     * @param attributes of your connection to db
+     */
+    public CatDao(final Map<String, String> attributes) {
+        if (connectionPool == null) {
+            connectionPool = ConnectionPoolFabric.createConnection(attributes);
+        }
+    }
+
+    /**
+     * Create cat
+     *
+     * @param cat entity need to be created.
+     * @return id of created cat, if something went wrong return -1.
+     */
     @Override
     public long create(final Cat cat) {
         long catId = INVALID_ID;
@@ -50,12 +65,17 @@ public final class CatDao implements Dao<Cat> {
                 }
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("cat id: " + catId);
+        LOGGER.info("cat id: " + catId);
         return catId;
     }
 
+    /**
+     * Search all cats.
+     *
+     * @return List of all exciting cats, if there's no cats then return empty list.
+     */
     @Override
     public List<Cat> search() {
         List<Cat> cats = new ArrayList<>();
@@ -67,11 +87,17 @@ public final class CatDao implements Dao<Cat> {
                 cats.add(catFrom(resultSet));
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
         return cats;
     }
 
+    /**
+     * Search cat by id.
+     *
+     * @param id of required cat
+     * @return {@link Optional} with cat if there's cat with given id, otherwise return empty Optional
+     */
     @Override
     public Optional<Cat> searchBy(final long id) {
         Optional<Cat> optionalCat = Optional.empty();
@@ -84,15 +110,21 @@ public final class CatDao implements Dao<Cat> {
                 optionalCat = Optional.of(catFrom(resultSet));
             }
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        optionalCat.ifPresent(cat -> logger.info(cat.toString()));
+        optionalCat.ifPresent(cat -> LOGGER.info(cat.toString()));
         if (optionalCat.isEmpty()) {
-            logger.warning("nothing to read");
+            LOGGER.warning("nothing to read");
         }
         return optionalCat;
     }
 
+    /**
+     * Update cat with given id
+     *
+     * @param cat new entity need to be replaced with old one
+     * @return return id of updated cat, if something went wrong return -1
+     */
     @Override
     public long update(final Cat cat) {
         long catId = INVALID_ID;
@@ -106,12 +138,18 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.setLong(5, cat.getId());
             catId = preparedStatement.executeUpdate() == 1 ? cat.getId() : catId;
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("cat id: " + catId);
+        LOGGER.info("cat id: " + catId);
         return catId;
     }
 
+    /**
+     * Delete cat by id.
+     *
+     * @param id provided id of entity to be deleted
+     * @return return true if cat was deleted, otherwise false
+     */
     @Override
     public boolean delete(final long id) {
         final int INVALID_RESULT = -1;
@@ -122,9 +160,9 @@ public final class CatDao implements Dao<Cat> {
             preparedStatement.setLong(1, id);
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.log(Level.WARNING, "some issues with sql", e);
+            LOGGER.log(Level.WARNING, "some issues with sql", e);
         }
-        logger.info("deleted rows: " + result);
+        LOGGER.info("deleted rows: " + result);
         return result == 1;
     }
 

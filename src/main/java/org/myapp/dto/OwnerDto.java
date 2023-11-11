@@ -1,5 +1,8 @@
 package org.myapp.dto;
 
+/**
+ * OwnerDto class provide all properties of {@link org.myapp.entity.Owner} for business logic.
+ */
 public final class OwnerDto extends BaseDto {
     private final long ownerId;
     private final String ownerName;
@@ -7,6 +10,16 @@ public final class OwnerDto extends BaseDto {
     private final int animalsAmount;
 
 
+    private OwnerDto(long ownerId, String ownerName, int ownerAge, int animalsAmount) {
+        this.ownerId = ownerId;
+        this.ownerName = ownerName;
+        this.ownerAge = ownerAge;
+        this.animalsAmount = animalsAmount;
+    }
+
+    /**
+     * You can create OwnerDto only via this builder.
+     */
     public static final class Builder {
         private long ownerId;
         private String ownerName;
@@ -52,12 +65,5 @@ public final class OwnerDto extends BaseDto {
 
     public int getAnimalsAmount() {
         return animalsAmount;
-    }
-
-    private OwnerDto(long ownerId, String ownerName, int ownerAge, int animalsAmount) {
-        this.ownerId = ownerId;
-        this.ownerName = ownerName;
-        this.ownerAge = ownerAge;
-        this.animalsAmount = animalsAmount;
     }
 }

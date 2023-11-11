@@ -2,8 +2,10 @@ package org.myapp.controller;
 
 import com.github.cliftonlabs.json_simple.JsonKey;
 
-public enum Attributes implements JsonKey {
-
+/**
+ * Provides attributes from json
+ */
+enum Attributes implements JsonKey {
     ID,
     NAME,
     COLOR,

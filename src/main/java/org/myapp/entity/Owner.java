@@ -1,11 +1,24 @@
 package org.myapp.entity;
 
+/**
+ * This class provides Owner entity for interactions with dao
+ */
 public final class Owner extends BaseEntity {
     private final long id;
     private final String name;
     private final int age;
     private final int animalsAmount;
 
+    private Owner(long id, String name, int age, int animalsAmount) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.animalsAmount = animalsAmount;
+    }
+
+    /**
+     * You can create Owner only via this builder.
+     */
     public static final class Builder {
         private long id;
         private String name;
@@ -53,12 +66,6 @@ public final class Owner extends BaseEntity {
         return animalsAmount;
     }
 
-    private Owner(long id, String name, int age, int animalsAmount) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.animalsAmount = animalsAmount;
-    }
 
     @Override
     public String toString() {

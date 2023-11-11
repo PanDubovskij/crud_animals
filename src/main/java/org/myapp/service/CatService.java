@@ -11,23 +11,46 @@ import java.util.Optional;
 
 import static org.myapp.util.Constants.INVALID_ID;
 
+/**
+ * This class works with {@link CatDto} instances.
+ */
 public final class CatService implements Service<CatDto> {
     private final Dao<Cat> catDao;
     private final Dao<Owner> ownerDao;
 
+    /**
+     * Create service with provided daos.
+     *
+     * @param catDao
+     * @param ownerDao
+     */
     public CatService(Dao<Cat> catDao, Dao<Owner> ownerDao) {
         this.catDao = catDao;
         this.ownerDao = ownerDao;
     }
 
+    /**
+     * @param catDto dto
+     * @return id of created instance, if something went wrong then return -1.
+     */
     @Override
     public long create(final CatDto catDto) {
         Owner owner = ownerFrom(catDto);
         long ownerId = ownerDao.create(owner);
-        Cat cat = catFrom(catDto, ownerId);
-        return catDao.create(cat);
+        long catId = INVALID_ID;
+
+        if (ownerId != INVALID_ID) {
+            Cat cat = catFrom(catDto, ownerId);
+            catId = catDao.create(cat);
+        }
+        return catId;
     }
 
+    /**
+     * Search all cats with their owners
+     *
+     * @return list of dtos, if there's nothing then return empty list.
+     */
     @Override
     public List<CatDto> search() {
         List<CatDto> catDtos = new ArrayList<>();
@@ -43,6 +66,10 @@ public final class CatService implements Service<CatDto> {
         return catDtos;
     }
 
+    /**
+     * @param catDto dto
+     * @return  id of updated instance, if something went wrong then return -1
+     */
     @Override
     public long update(final CatDto catDto) {
         long newCatId = INVALID_ID;
@@ -83,6 +110,10 @@ public final class CatService implements Service<CatDto> {
         return newCatId;
     }
 
+    /**
+     * @param id of removable CatDto
+     * @return true if instance was deleted otherwise false
+     */
     @Override
     public boolean delete(final long id) {
         return catDao.delete(id);

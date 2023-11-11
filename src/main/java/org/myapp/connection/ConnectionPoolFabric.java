@@ -1,23 +1,12 @@
 package org.myapp.connection;
 
-import org.myapp.util.PropertiesUtil;
-
 import java.util.Map;
 
 import static org.myapp.connection.ConnectionPoolFabric.PropertiesFile.*;
 
-public class ConnectionPoolFabric {
+public final class ConnectionPoolFabric {
 
     private ConnectionPoolFabric() {
-    }
-
-    public static class PropertiesFile {
-
-        public static final String PASSWORD_KEY = "db.password";
-        public static final String USERNAME_KEY = "db.username";
-        public static final String URL_KEY = "db.url";
-        public static final String POOL_SIZE = "db.pool";
-
     }
 
     public static ConnectionPool createConnection() {
@@ -38,4 +27,11 @@ public class ConnectionPoolFabric {
                 .build();
     }
 
+
+    public static class PropertiesFile {
+        public static final String PASSWORD_KEY = "db.password";
+        public static final String USERNAME_KEY = "db.username";
+        public static final String URL_KEY = "db.url";
+        public static final String POOL_SIZE = "db.pool";
+    }
 }

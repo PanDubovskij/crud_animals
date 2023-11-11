@@ -4,22 +4,23 @@ import org.myapp.dao.CatDao;
 import org.myapp.dao.OwnerDao;
 import org.myapp.service.CatService;
 
-public class ControllerFactory {
+import java.util.Map;
 
-////    public static Controller newResistorController() {
-//        return new CatController(new CatService(new CatDao()));
-////    }
-
-//    public static Controller flexibleCapacitorController(Map<String, String> properties) {
-//        return new ControllerCapacitor(new ServiceCapacitor(new CapacitorDao.Builder().type(FLEXIBLE).property(properties).build()));
-//}
-
+/**
+ * Provides factory methods for creating controllers
+ */
+public final class ControllerFactory {
+    /**
+     * @return CatController with default configuration
+     */
     public static Controller newCatController() {
         return new CatController(new CatService(new CatDao(), new OwnerDao()));
     }
-
-//    public static Controller newDogController() {
-//        return new DogController(new DogService(new DogDao(), new OwnerDao()));
-//    }
+    /**
+     * @return custom CatController with given properties
+     */
+    public static Controller newCatController(Map<String, String> properties) {
+        return new CatController(new CatService(new CatDao(properties), new OwnerDao(properties)));
+    }
 
 }

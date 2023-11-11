@@ -1,5 +1,8 @@
 package org.myapp.dto;
 
+/**
+ * CatDto class provide all properties of {@link org.myapp.entity.Cat} and {@link org.myapp.entity.Owner}
+ */
 public final class CatDto extends BaseDto {
 
     private final long id;
@@ -13,6 +16,21 @@ public final class CatDto extends BaseDto {
     private final int animalsAmount;
 
 
+    private CatDto(long id, String name, String color, int weight, int height, long ownerId, String ownerName, int ownerAge, int animalsAmount) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.weight = weight;
+        this.height = height;
+        this.ownerId = ownerId;
+        this.ownerName = ownerName;
+        this.ownerAge = ownerAge;
+        this.animalsAmount = animalsAmount;
+    }
+
+    /**
+     * You can create CatDto only via this builder.
+     */
     public static final class Builder {
         private long id;
         private String name;
@@ -22,6 +40,7 @@ public final class CatDto extends BaseDto {
         private long ownerId;
         private String ownerName;
         private int ownerAge;
+
         private int animalsAmount;
 
 
@@ -73,6 +92,7 @@ public final class CatDto extends BaseDto {
         public CatDto build() {
             return new CatDto(id, name, color, weight, height, ownerId, ownerName, ownerAge, animalsAmount);
         }
+
     }
 
 
@@ -110,18 +130,6 @@ public final class CatDto extends BaseDto {
 
     public int getAnimalsAmount() {
         return animalsAmount;
-    }
-
-    private CatDto(long id, String name, String color, int weight, int height, long ownerId, String ownerName, int ownerAge, int animalsAmount) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.weight = weight;
-        this.height = height;
-        this.ownerId = ownerId;
-        this.ownerName = ownerName;
-        this.ownerAge = ownerAge;
-        this.animalsAmount = animalsAmount;
     }
 
     @Override

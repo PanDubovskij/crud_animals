@@ -1,4 +1,4 @@
-package org.myapp.util;
+package org.myapp.connection;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PropertiesUtil {
+final class PropertiesUtil {
 
     private static final Properties PROPERTIES = new Properties();
     private static final String PATH_FILL = "application.properties";
