@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  db:
+    container_name: pg_db
+    image: postgres
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+      - ./pgdata:/var/lib/postgresql
+    networks:
+      - crud
+
+  crud-app:
+    container_name: crud-animals
+    image: crud-animals
+    build: ../..
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - crud
+
+networks:
+  crud:
+    driver: bridge
