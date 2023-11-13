@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 import static org.myapp.util.Constants.CATS_PATH;
 
-public final class Main {
+final class Main {
     public static void main(String[] args) {
         Map<String, HttpHandler> handlers = new HashMap<>();
         handlers.put(CATS_PATH, new Handler(ControllerFactory.newCatController()));

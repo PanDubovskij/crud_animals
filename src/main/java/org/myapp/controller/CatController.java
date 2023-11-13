@@ -18,7 +18,7 @@ import static org.myapp.util.Constants.INVALID_ID;
 /**
  * This class implements abstract methods of {@link Controller} for cats domain
  */
-public final class CatController extends Controller {
+final class CatController extends Controller {
 
     private final Service<CatDto> service;
 
