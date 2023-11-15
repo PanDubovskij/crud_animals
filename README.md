@@ -1,6 +1,6 @@
 # Overview
 
-This project is a simple CRUD application, that allows you to perform a set of operations to manage cats.
+This project is a simple CRUD application <b>with minimum dependencies</b>, that allows you to perform a set of operations to manage cats.
 
 After launching the application, two tables will be created in the database: cats and owners.
 
