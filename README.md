@@ -19,11 +19,11 @@ __Clone:__ git clone https://github.com/PanDubovskij/crud_animals.git
 __Run:__
 
 + ```cd ./crud-animals```
-+ enter ```docker compose up -d --build```
++ ```docker compose up -d --build```
 
 __Stop:__
 
-+ enter ```docker compose down```
++ ```docker compose down```
 
 <hr>
 
